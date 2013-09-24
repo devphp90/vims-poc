@@ -1,0 +1,1 @@
+0 */1 * * * php /home/vims/public_html/protected/yiic.php get get --option=hour --frequency=1
