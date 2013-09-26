@@ -144,4 +144,11 @@ class Tabs extends CActiveRecord
 			),
 		));
 	}
+
+    protected function beforeSave()
+    {
+        $this->update_time = date('Y-m-d H:i:s');
+        $this->update_by = Yii::app()->user->id;
+        return parent::beforeSave();
+    }
 }

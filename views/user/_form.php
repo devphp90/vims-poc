@@ -14,13 +14,13 @@
 		<?php echo $form->textField($model,'username',array('size'=>50,'maxlength'=>50)); ?>
 		<?php echo $form->error($model,'username'); ?>
 	</div>
-
+<?php if ($model->isNewRecord) { ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'password'); ?>
-		<?php echo $form->textField($model,'password',array('size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->passwordField($model,'password',array('size'=>50,'maxlength'=>50)); ?>
 		<?php echo $form->error($model,'password'); ?>
 	</div>
-
+<?php } ?>
 	<div class="row">
 		<?php echo $form->labelEx($model,'name'); ?>
 		<?php echo $form->textField($model,'name',array('size'=>60,'maxlength'=>100)); ?>

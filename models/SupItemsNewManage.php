@@ -406,91 +406,79 @@ class SupItemsNewManage extends CActiveRecord
 	}
 	
     public function searchSupchecker()
-    	{
+    {
         // Warning: Please modify the following code to remove attributes that
         // should not be searched.
         
-        $page = Yii::app()->request->getParam('SupItemsNewManage_page');
-        $pageSize = Yii::app()->request->getParam('pageSize');
         
-        if (empty($page))
-			$page = 1;
-        
-        $cacheName = 'supcheckers_' . $this->sup_id. '_' . $pageSize . '_' . $page;
-        if (Yii::app()->cache->get($cacheName) == false) {
-        
-            $criteria = new CDbCriteria;
-            $criteria->together = true;
-            $criteria->condition = 'item_status=0'; // and supplier.id=:sup_id';
-            $criteria->select = array(
-                '*',
-            );
+        $criteria = new CDbCriteria;
+        $criteria->together = true;
+        $criteria->condition = 'item_status=0'; // and supplier.id=:sup_id';
+        $criteria->select = array(
+            '*',
+        );
 
-            if (!empty($this->mfg_part_name)) {
-                $criteria->addCondition('t.mfg_part_name like :mfg_part_name');
-                $criteria->params[':mfg_part_name'] = str_replace('*', '%', $this->mfg_part_name);
-            }
-            //$criteria->join = 'left join ';
-            $criteria->compare('t.id', $this->id);
-            //$criteria->compare('import_id',$this->import_id);
-            $criteria->with = array('ubsinventory', 'import_routine');
-            if ($this->sup_id) {
-                $criteria->with = array_merge($criteria->with, array('supplier'));
-                $criteria->compare('supplier.id', $this->sup_id);
-            }
-            $criteria->compare('t.sup_vsku', $this->sup_vsku, true);
-            $criteria->compare('t.sup_sku', $this->sup_sku, true);
-            $criteria->compare('t.sup_sku_name', $this->sup_sku_name, true);
-            $criteria->compare('t.sup_description', $this->sup_description, true);
-            $criteria->compare('t.mfg_sku', $this->mfg_sku, true);
-            $criteria->compare('t.upc', $this->upc, true);
-            $criteria->compare('t.mfg_name', $this->mfg_name, true);
-    //		$criteria->compare('t.mfg_part_name',$this->mfg_part_name,true);
-            $criteria->compare('`match`', $this->match);
-            $criteria->compare('`match_by`', $this->match_by);
-            $criteria->compare('t.sup_price', $this->sup_price, true);
-            $criteria->compare('ubsinventory.sku', $this->ubs_sku, true);
-    //		$criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price',$this->percent_diff);
-            if ($this->percent_diff == 'n/a') {
-    //      $criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', 0);
-                $criteria->addCondition('abs(ubsinventory.price-t.sup_price)/ubsinventory.price IS NULL');
-            } else {
-                $criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', $this->percent_diff, true);
-            }
-
-            $criteria->compare('(ubsinventory.price-t.sup_price)', $this->price_diff, true);
-
-            $dataProvider =  new CActiveDataProvider($this, array(
-                        'criteria' => $criteria,
-                        'pagination' => array(
-                            'pageSize' => Yii::app()->user->getState('pageSize', 100),
-                        ),
-                        'sort' => array(
-                            'attributes' => array(
-                                'sup_id' => array(
-                                    'asc' => 'supplier.name',
-                                    'desc' => 'supplier.name DESC',
-                                ),
-                                'ubs_sku' => array(
-                                    'asc' => 'ubsinventory.sku',
-                                    'desc' => 'ubsinventory.sku DESC',
-                                ),
-                                'price_diff' => array(
-                                    'asc' => '(ubsinventory.price-t.sup_price)',
-                                    'desc' => '(ubsinventory.price-t.sup_price) desc',
-                                ),
-                                'percent_diff' => array(
-                                    'asc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price',
-                                    'desc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price desc',
-                                ),
-                            ),
-                        ),
-                    ));
-		
-            Yii::app()->cache->set($cacheName, $dataProvider, 3600);
-        } else {
-            $dataProvider = Yii::app()->cache->get($cacheName);
+        if (!empty($this->mfg_part_name)) {
+            $criteria->addCondition('t.mfg_part_name like :mfg_part_name');
+            $criteria->params[':mfg_part_name'] = str_replace('*', '%', $this->mfg_part_name);
         }
+        //$criteria->join = 'left join ';
+        $criteria->compare('t.id', $this->id);
+        //$criteria->compare('import_id',$this->import_id);
+        $criteria->with = array('ubsinventory', 'import_routine');
+        if ($this->sup_id) {
+            $criteria->with = array_merge($criteria->with, array('supplier'));
+            $criteria->compare('supplier.id', $this->sup_id);
+        }
+        $criteria->compare('t.sup_vsku', $this->sup_vsku, true);
+        $criteria->compare('t.sup_sku', $this->sup_sku, true);
+        $criteria->compare('t.sup_sku_name', $this->sup_sku_name, true);
+        $criteria->compare('t.sup_description', $this->sup_description, true);
+        $criteria->compare('t.mfg_sku', $this->mfg_sku, true);
+        $criteria->compare('t.upc', $this->upc, true);
+        $criteria->compare('t.mfg_name', $this->mfg_name, true);
+//		$criteria->compare('t.mfg_part_name',$this->mfg_part_name,true);
+        $criteria->compare('`match`', $this->match);
+        $criteria->compare('`match_by`', $this->match_by);
+        $criteria->compare('t.sup_price', $this->sup_price, true);
+        $criteria->compare('ubsinventory.sku', $this->ubs_sku, true);
+//		$criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price',$this->percent_diff);
+        if ($this->percent_diff == 'n/a') {
+//      $criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', 0);
+            $criteria->addCondition('abs(ubsinventory.price-t.sup_price)/ubsinventory.price IS NULL');
+        } else {
+            $criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', $this->percent_diff, true);
+        }
+
+        $criteria->compare('(ubsinventory.price-t.sup_price)', $this->price_diff, true);
+
+        $dataProvider =  new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => Yii::app()->user->getState('pageSize', 100),
+            ),
+            'sort' => array(
+                'attributes' => array(
+                    'sup_id' => array(
+                        'asc' => 'supplier.name',
+                        'desc' => 'supplier.name DESC',
+                    ),
+                    'ubs_sku' => array(
+                        'asc' => 'ubsinventory.sku',
+                        'desc' => 'ubsinventory.sku DESC',
+                    ),
+                    'price_diff' => array(
+                        'asc' => '(ubsinventory.price-t.sup_price)',
+                        'desc' => '(ubsinventory.price-t.sup_price) desc',
+                    ),
+                    'percent_diff' => array(
+                        'asc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price',
+                        'desc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price desc',
+                    ),
+                ),
+            ),
+        ));
+
         
         return $dataProvider;
     }

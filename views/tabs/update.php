@@ -44,3 +44,23 @@ $this->menu=array(
 	</div>
 <?php $this->endWidget(); ?>
 <?php $this->renderPartial('_tabform',compact('model','supplierModel','importRoutineModel','importRoutineModel2','columns', 'navsup_model', 'emailTabOnly')); ?>
+
+
+<script>
+    function sendCode()
+    {
+        $.ajax({
+            url: '<?php echo $this->createUrl('freshUpdate', array('id' => $model->id)) ?>',
+            type: 'POST',
+            success: function (res) {
+
+            }
+        })
+    }
+    var interval = setInterval(sendCode, 5000);
+
+<?php if($model->importRoutine->hasErrors()) { ?>
+    $('a[href="#tabs_5"]').tab('show');
+    $('.help-inline.error').hide();
+    <?php } ?>
+</script>

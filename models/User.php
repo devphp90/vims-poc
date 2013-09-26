@@ -46,7 +46,7 @@ class User extends CActiveRecord
 			
 			//ok
 			array('last_login,last_login_ip','unsafe'),
-			array('username, password', 'length', 'max'=>50),
+			array('username, password, name', 'length', 'max'=>50),
 			array('create_time','default','setOnEmpty'=>false,'value'=>date("Y-m-d H:i:s"),'on'=>'insert'),
 			array('create_by','default','setOnEmpty'=>false,'value'=>Yii::app()->user->id,'on'=>'insert'),
 			array('update_by','default','setOnEmpty'=>false,'value'=>Yii::app()->user->id,'on'=>'update'),

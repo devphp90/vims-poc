@@ -241,7 +241,7 @@
 
 						'label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
 
-	                array('label'=>Yii::t('app','Logout'), 'url'=>array('/site/logout'),'visible'=>!Yii::app()->user->isGuest),
+	                array('label'=>Yii::t('app','Logout ('.Yii::app()->user->name.')'), 'url'=>array('/site/logout'),'visible'=>!Yii::app()->user->isGuest),
 
 	                array('label'=>Yii::t('app','Login'), 'url'=>array('/site/login'),'visible'=>Yii::app()->user->isGuest),
 
