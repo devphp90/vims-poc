@@ -6,7 +6,8 @@ if ($supplierOnly) {
     array(
       'type' => 'raw',
       'name' => 'supplier_name',
-      'value' => 'CHtml::link($data->supplier->name,array("update","id"=>$data->id, "type"=>"dashboard"))',
+
+      'value' => 'CHtml::link($data->importRoutine->supplier->name,array("update","id"=>$data->id, "type"=>"dashboard"))',
       'htmlOptions' => array('style' => 'width: 10%'),
       'headerHtmlOptions' => array('style' => 'width: 10%'),
     )
@@ -16,7 +17,7 @@ if ($supplierOnly) {
     array(
       'type' => 'raw',
       'name' => 'supplier_name',
-      'value' => 'CHtml::link($data->supplier->name,array("update","id"=>$data->id))',
+      'value' => 'CHtml::link($data->importRoutine->supplier->name,array("update","id"=>$data->id))',
       'htmlOptions' => array('style' => 'width: 10%'),
       'headerHtmlOptions' => array('style' => 'width: 10%'),
     ),
@@ -31,8 +32,11 @@ if ($supplierOnly) {
       'header' => 'Active<br/>Inactive<br/>Status',
       'name' => 'supplier.active',
       'type' => 'raw',
-      'value' => 'CHtml::link($data->supplier->active?"Active":"Inactive", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->supplier->id)), array("id" => "link-status-".$data->supplier->id, "class" => "status-toggle"))
-        . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle"))',
+
+      'value' => 'CHtml::link($data->importRoutine->supplier->active?"Active":"Inactive", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->importRoutine->supplier->id)), array("id" => "link-status-".$data->importRoutine->supplier->id, "class" => "status-toggle"))
+        . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->importRoutine->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle"))',
+
+
       'htmlOptions' => array('style' => 'width: 70px'),
       'headerHtmlOptions' => array('style' => 'width: 70px'),
     ),
@@ -84,28 +88,44 @@ if ($supplierOnly) {
     array(
       'header' => 'Manage<br/>New Items<br/>("Checkers")',
       'type' => 'raw',
-      'value' => 'CHtml::link(\'Checkers\',array(\'/supNewItem/supChecker\',\'supid\'=>$data->supplier->id),array())',
+
+      'value' => 'CHtml::link(\'Checkers\',array(\'/supNewItem/supChecker\',\'supid\'=>$data->importRoutine->supplier->id),array())',
+
+
+
       'htmlOptions' => array('style' => 'width: 80px'),
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
     array(
       'header' => 'New Items',
       'type' => 'raw',
-      'value' => 'CHtml::link("New Items", array("supNewItem/noMatch", "sup_id"=>$data->supplier->id))',
+
+      'value' => 'CHtml::link("New Items", array("supNewItem/noMatch", "sup_id"=>$data->importRoutine->supplier->id))',
+
+
+
       'htmlOptions' => array('style' => 'width: 80px'),
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
     array(
       'header' => 'Mis Match<br/>Items',
       'type' => 'raw',
-      'value' => 'CHtml::link("MisMatch Items", array("supNewItem/misMatch", "sup_id"=>$data->supplier->id))',
+
+      'value' => 'CHtml::link("MisMatch Items", array("supNewItem/misMatch", "sup_id"=>$data->importRoutine->supplier->id))',
+
+
+
       'htmlOptions' => array('style' => 'width: 80px'),
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
     array(
       'header' => 'Missing<br/>Items',
       'type' => 'raw',
-      'value' => 'CHtml::link("Missing", array("supInventory/dropItem", "supplierId" => $data->supplier->id))',
+
+      'value' => 'CHtml::link("Missing", array("supInventory/dropItem", "supplierId" => $data->importRoutine->supplier->id))',
+
+
+
       'htmlOptions' => array('style' => 'width: 80px'),
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
@@ -122,6 +142,13 @@ if ($supplierOnly) {
       'value' => 'CHtml::link(\'Qty Warning\',array(\'/importWarnitemQty/supview\',\'id\'=>$data->id),array())',
       'htmlOptions' => array('style' => 'width: 7%'),
       'headerHtmlOptions' => array('style' => 'width: 7%'),
+    ),
+    array(
+      'header' => 'Manage<br/>New Items<br/>("Checkers 2")',
+      'type' => 'raw',
+      'value' => 'CHtml::link(\'Checkers2\',array(\'/supNewItem/supChecker2\',\'supid\'=>$data->supplier->id),array())',
+      'htmlOptions' => array('style' => 'width: 80px'),
+      'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
     array(
       'header' => 'Items<br/>InStock',

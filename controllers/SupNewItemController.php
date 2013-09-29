@@ -200,7 +200,7 @@ class SupNewItemController extends Controller
                     $priceDiff = !empty($result->ubsinventory) ? ($result->ubsinventory->price - $result->sup_price) : "";
 
                     $ubsSku = !is_null($result->ubsinventory) ? $result->ubsinventory->sku : "";
-                    $ubsItemName = !is_null($result->ubsinventory) ? ((strlen($result->ubsinventory->sku_name) > 18) ? "<a href='#' rel='tooltip' title='" . $result->ubsinventory->sku_name . "'>" . substr($result->ubsinventory->sku_name, 0, 18) . "...</a>" : $result->ubsinventory->sku_name) : "";
+                    $ubsItemName = !is_null($result->ubsinventory) ? ((strlen($result->ubsinventory->sku_name) > 50) ? "<a href='#' rel='tooltip' title='" . $result->ubsinventory->sku_name . "'>" . substr($result->ubsinventory->sku_name, 0, 50) . "...</a>" : $result->ubsinventory->sku_name) : "";
                     $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='". $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
                     $supp_mfg_name = (strlen($result->mfg_name) > 20) ? "<a href='#' title='" . $result->mfg_name . "' rel='tooltip'>" . substr($result->mfg_name, 0, 20) . "...</a>" : $result->mfg_name;
                     $ubs_mfg_name = !empty($result->ubsinventory) ? $result->ubsinventory->mfg_title : '';

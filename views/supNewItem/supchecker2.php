@@ -322,7 +322,6 @@ $this->widget('bootstrap.widgets.TbButton', array(
 </div>
 <div style="margin:10px 0;"></div>-->
 
-<a href="/index.php/supNewItem/delete/391942" title="Delete" class="delete"><img alt="Delete" src="/assets/3a624659/gridview/delete.png"></a>
 
 <table id="dg" class="easyui-datagrid" title="Manage Supplier New Items" style="width:auto;height:250px"
         data-options="rownumbers:true,singleSelect:true,method:'get'">
@@ -330,15 +329,15 @@ $this->widget('bootstrap.widgets.TbButton', array(
         <tr>
             <th data-options="field:'matchby',width:60">Match By</th>
             <th data-options="field:'match',width:120">Match</th>
-        </tr>
-    </thead>
-    <thead>
-        <tr>
             <th data-options="field:'diff',width:90,align:'right'">% Diff</th>
             <th data-options="field:'ubs_item_cost',width:60,align:'right'">UBS Item Cost</th>
             <th data-options="field:'supp_item_price',width:60">Supp Item Price</th>
             <th data-options="field:'price_diff',width:60,align:'center'">Price Diff</th>
             <th data-options="field:'ubs_sku',width:120,align:'center'">UBS SKU</th>
+        </tr>
+    </thead>
+    <thead>
+        <tr>
             <th data-options="field:'ubs_item_name',width:120,align:'center'">UBS Item Name</th>
             <th data-options="field:'mfg_part_name',width:120,align:'center'">Mfg Part Name</th>
             <th data-options="field:'supp_mfg_name',width:120,align:'center'">Supp Mfg Name</th>
