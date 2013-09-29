@@ -50,7 +50,7 @@ class ImportVsheet extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('import_id, sup_vsku, price, map, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6, mfg_sku, mfg_name, upc, sup_sku_name', 'safe'),
+			array('import_id,sup_id, sup_vsku, price, map, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6, mfg_sku, mfg_name, upc, sup_sku_name', 'safe'),
 			array('import_id, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6', 'numerical', 'integerOnly'=>true),
 			array('price, map', 'numerical'),
 			//array('sup_vsku, mfg_sku, mfg_name, upc, sup_sku_name, mfg_part_name', 'length', 'max'=>255),
@@ -70,6 +70,17 @@ class ImportVsheet extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'importRoutine' => array(self::BELONGS_TO, 'ImportRoutine', 'import_id' , 'together'=>true),
+			'supInventory' => array(self::HAS_ONE, 'SupInventory', array('sup_vsku'=>'sup_vsku','sup_id'=>'sup_id'),
+
+				'with'=>array(
+					'supplier'=>array(
+						'select'=>'id,name',
+					),
+					'ubs_inventory'=>array(
+					),
+					'warehouseitems',
+				)
+			),
 		);
 	}
 
@@ -163,7 +174,7 @@ class ImportVsheet extends CActiveRecord
 			'pagination'=>array('pageSize'=>50),
 		));
 	}
-	
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.

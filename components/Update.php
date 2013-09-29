@@ -11,6 +11,8 @@ class Update
 
 	private $_diffPriceCount = 0;
 	private $_diffQOHCount = 0;
+
+	private $_dbcommand;
 	
 	
 	function __construct($tabid)
@@ -41,6 +43,7 @@ class Update
 			),
 		));	
 
+
 		if($this->_tabsModel == null)
 			throw new CHttpException('500','Can\'t find Tabs id.');
 		
@@ -55,9 +58,11 @@ class Update
 
 		$this->_updateModel = $this->_routineModel->getUpdateModel();
 
-		$command = Yii::app()->db->createCommand();
-		$command->delete('vims_import_warnitem_price', 'import_id=:id', array(':id'=>$this->_routineModel->id));
-		$command->delete('vims_import_warnitem_qty', 'import_id=:id', array(':id'=>$this->_routineModel->id));
+
+		$this->_dbcommand = Yii::app()->db->createCommand();
+		$this->_dbcommand->delete('vims_import_warnitem_price', 'import_id=:id', array(':id'=>$this->_routineModel->id));
+		$this->_dbcommand->delete('vims_import_warnitem_qty', 'import_id=:id', array(':id'=>$this->_routineModel->id));
+
 
 	}
 	
@@ -66,9 +71,10 @@ class Update
 
 		$this->updateStatus('data_integrity',1);
 
+		
 		if($this->_tabsModel->supplier->active == 0 )
 			$this->updateLog('data_integrity','Supplier is Inactive',true);
-				echo '123';			
+
 		$this->checkDiffPercent();
 
 		$this->updateStatus('data_integrity',3);
@@ -97,6 +103,7 @@ class Update
 			$this->updateStatus('qoh_percent_change',4);
 			
 
+
 		$this->dropItem();
 		
 		$this->_updateLogModel->finish_time = date("Y-m-d H:i:s");
@@ -111,20 +118,25 @@ class Update
 
 		$sql = 'select count(*) as diffPriceCount from vims_import_vsheet as a right join vims_import_vsheet_last as b on a.sup_vsku = b.sup_vsku and a.import_id = b.import_id where a.price != b.price and a.import_id= :import_id';
 		$command = Yii::app()->db->createCommand($sql); 
-		$command->bindParam(":import_id",$this->_routineModel->id);
+
+		$import_id = $this->_routineModel->id;
+		$command->bindParam(":import_id",$import_id);
 		$result = $command->queryRow();
 		$this->_diffPriceCount = $result['diffPriceCount'];
 		
 		$sql = 'select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_import_vsheet_last as b on a.sup_vsku = b.sup_vsku and a.import_id = b.import_id where (a.ware_1+a.ware_2+a.ware_3+a.ware_4+a.ware_5+a.ware_6) != (b.ware_1+a.ware_2+b.ware_3+b.ware_4+b.ware_5+b.ware_6) and a.import_id= :import_id';
 		$command = Yii::app()->db->createCommand($sql); 
-		$command->bindParam(":import_id",$this->_routineModel->id);
+
+		$command->bindParam(":import_id",$import_id);
 		$result = $command->queryRow(); 
 		$this->_diffQOHCount = $result['diffQOHCount'];
 		
-		$sql = 'select count(*) as countInstock from vims_import_vsheet as a right join vims_sup_inventory as b on a.sup_vsku = b.sup_vsku where b.sup_id = :sup_id and (b.buffer_c + (a.ware_1+a.ware_2+a.ware_3+a.ware_4+a.ware_5+a.ware_6) - b.sup_open_order) > 0';
-		//
+		$sql = 'select count(*) as countInstock from vims_import_vsheet as a right join vims_sup_inventory as b on a.sup_vsku = b.sup_vsku and a.sup_id = b.sup_id where a.sup_id = :sup_id and (b.buffer_c + (a.ware_1+a.ware_2+a.ware_3+a.ware_4+a.ware_5+a.ware_6) - b.sup_open_order) > 0';
+		//select count(*) as countInstock from vims_import_vsheet as a right join vims_sup_inventory as b on a.sup_vsku = b.sup_vsku where a.sup_id = :sup_id and (b.buffer_c + (a.ware_1+a.ware_2+a.ware_3+a.ware_4+a.ware_5+a.ware_6) - b.sup_open_order) > 0
 		$command = Yii::app()->db->createCommand($sql); 
-		$command->bindParam(":sup_id",$this->_routineModel->supplier->id);
+		$supid = $this->_routineModel->supplier->id;
+		$command->bindParam(":sup_id",$supid);
+
 		$result = $command->queryRow();
 		$this->_countInstock = $result['countInstock'];
 /*
@@ -246,7 +258,7 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 	public function markUpdateItem()
 	{
 		$this->time = Yii::getLogger()->getExecutionTime();
-		echo '<br>';
+
     // Purge checkers table
 	    SupItemsNewManage::model()->deleteAll('import_id = :import_id and `match`<>:match',array(
 	    	':import_id' => $this->_routineModel->id,
@@ -260,11 +272,13 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 		
 		
 		
-		$pageSize = 3000;
-		
-		$count = ImportVsheet::model()->count('import_id=:import_id  and not exists(select 1 from vims_sup_items_new_no_match as a where a.sup_vsku = t.sup_vsku and a.sup_id = :sup_id)',array(
+
+		$pageSize = 100;
+		//  and not exists(select 1 from vims_sup_items_new_no_match as a where a.sup_vsku = t.sup_vsku and a.sup_id = :sup_id)
+		$count = ImportVsheet::model()->count('import_id=:import_id',array(
 			':import_id'=>$this->_routineModel->id,
-			':sup_id'=>$this->_routineModel->sup_id
+			//':sup_id'=>$this->_routineModel->sup_id
+
 		));
 
 		$page = ceil($count/$pageSize);
@@ -272,18 +286,32 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 		
 		$criteria = new CDbCriteria;
 		//$criteria->condition = 'import_id=:import_id and not exist(select 1 from vims_sup_items_new_manage as b where b.sup_vsku = t.sup_vsku and b.import_id = t.import_id) and not exist(select 1 from vims_sup_items_new_no_match as a where a.sup_vsku = t.sup_vsku and a.sup_id = :sup_id)';
-		$criteria->select = '(ware_1+ware_2+ware_3+ware_4+ware_5+ware_6) as totalQOH,t.*';
+
+		$criteria->select = '(t.ware_1+t.ware_2+t.ware_3+t.ware_4+t.ware_5+t.ware_6) as totalQOH,t.*';
 		//$criteria->condition = ' import_id=:import_id  and not exists(select 1 from vims_sup_items_new_no_match as a where a.sup_vsku = t.sup_vsku and a.sup_id = :sup_id)';
 		$criteria->condition = 'import_id=:import_id';
-		$criteria->join = 'LEFT JOIN vims_sup_items_new_no_match AS a ON a.sup_vsku = t.sup_vsku AND a.sup_id =  :sup_id';
+//		$criteria->join = 'LEFT JOIN vims_sup_items_new_no_match AS a ON a.sup_vsku = t.sup_vsku AND a.sup_id =  :sup_id';
 		$criteria->params = array(
 			':import_id'=>$this->_routineModel->id,
-			':sup_id'=>$this->_routineModel->sup_id,
+			//':sup_id'=>$this->_routineModel->sup_id,
+		);
+		$criteria->with = array(
+			'supInventory'=>array(
+
+			),
+
+
+
 		);
 		$aaaaa = 0;
 		$finish_item = 0;
 		$instock_item = 0;
 		$already_checker_item = 0;
+
+
+
+
+
 		for($i=0;$i<$page;$i++){
 			
 			$dataProvider_1=new CActiveDataProvider('ImportVsheet', array(
@@ -294,8 +322,13 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 			    ),
 			    'totalItemCount'=>$count,
 			));
+
+			$importVsheets = $dataProvider_1->getData();
+			foreach($importVsheets as $id=>$vsheet):
+
 			
-			foreach($dataProvider_1->getData() as $id=>$vsheet):
+
+
 
 
 /*tuned
@@ -316,33 +349,53 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 */
 			
 
+
+/*		
+
+
 			$supItem = SupInventory::model()->with('supplier','ubs_inventory')->findByAttributes(array(
 						'sup_id'=>$this->_routineModel->supplier->id,
 						'sup_vsku'=>$vsheet->sup_vsku,
 					));
-					
+
+*/
+			$supItem = $vsheet->supInventory;
+			
+
 
 			if($supItem != null){
-				var_dump($supItem->id);
 
-/*
-				$supItem = SupInventory::model()->find(array(
-					'condition'=>'t.id=:id',
-					'params'=>array(
-						':id'=>$vsheet->sup_id
-					),
-					'with'=>'ubs_inventory',
-					
-				));
-*/
+
+
+
 				$totalQOH = $vsheet->totalQOH;
 				
 
 				$supbQOH = $totalQOH + $supItem->getBuffer();
 				
 				$supvQOH = $supbQOH  - $supItem->sup_open_order;
+
+
+				foreach($vsheet->supInventory->warehouseitems as $ware_id=>$ware_value){	
+
+					for($a=1;$a<=6;$a++):
+
+						if(!empty($this->_routineModel->{'ware_'.$a}) && 
+							$ware_value->ware_id == $this->_routineModel->{'ware_id_'.$a} &&
+							$ware_value->qty_on_hand != $vsheet->{'ware_'.$a}
+							){
+								$ware_value->qty_on_hand = $vsheet->{'ware_'.$a};
+								$ware_value->save(false);
+						}
+					endfor;
+				}
+
+				/*
+for($a=1;$a<=6;$a++):
+
 				
 				for($a=1;$a<=6;$a++):
+
 					if($this->_routineModel->{'ware_'.$a}){
 						$supWareItem = SupWarehouseItem::model()->findByAttributes(array(
 							'vims_id'=>$supItem->id,
@@ -357,6 +410,12 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 					}
 				endfor;
 
+*/
+
+
+
+
+
 				$supItem->last_update = date("Y-m-d H:i:s");
 				$supItem->sup_price = $vsheet->price;
 				$supItem->sup_min_adv_price = $vsheet->map;
@@ -366,35 +425,49 @@ select count(*) as diffQOHCount from vims_import_vsheet as a right join vims_sup
 					
 
 				if($totalQOH > 0){
+
+				
+
+
 					$supItem->sup_status = SupInventory::STATUS_IN_STOCK;
 								
 					$this->checkQPPercent($supItem->sup_vsku, 'Price',$vsheet->price);
 
 					$this->checkQPPercent($supItem->sup_vsku, 'QOH',$totalQOH);
-				
+
+					
+					$supItem->save(false);
+					
 				}else
 					$supItem->saveBO($this->_routineModel->days_to_disco);
 					
-				$supItem->save();
+				
 
-				$vsheetlast = new ImportVsheetLast;
+
 				$data = $vsheet->attributes;
 				unset($data['id']);
-				$vsheetlast->setAttributes($data, false);
-				$vsheetlast->save();
+				unset($data['sup_sku']);
+				$this->_dbcommand->insert('vims_import_vsheet_last', $data);
 				
-				$ubsModel = $supItem->ubs_inventory;
-				if($ubsModel !== null)
-					$ubsModel->save(false);
+				if($supItem->ubs_inventory !== null)
+					$supItem->ubs_inventory->save(false);
+					
 				$instock_item += 1;
-$this->_updateLogModel->saveCounters(array('instock_item'=>1));
+
+				if($instock_item %100 ==0)
+					$this->_updateLogModel->saveCounters(array('instock_item'=>100));
+					
+				unset($vsheet);
+				unset($importVsheets[$id]);
+
+
+
 
 			}else{
-
 				if (!SupItemsNewManage::model()->findByAttributes(array(
 		            'sup_vsku' => $vsheet->sup_vsku,
 		            'import_id' => $vsheet->import_id,
-		            'item_status' => SupItemsNewManage::MATCH_STATUS_UNDECIDED
+		            'match' => SupItemsNewManage::MATCH_STATUS_UNDECIDED
 		          ))) {
 
 
@@ -426,8 +499,19 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 						$this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
 		            
-		            if(count($matchedUbsItems) > 0)
+
+
+		            if(count($matchedUbsItems) > 0){
+						$finish_item += 1;
+			            if($finish_item %1000 ==0)
+							$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
 		            	continue;
+		            }
+
+
+
+
+
 		            	
 		            	
 		            $ubsItems = UbsInventory::model()->findAll(
@@ -455,9 +539,18 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 		              $this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
 
-		            if(count($matchedUbsItems) > 0)
+
+
+		           if(count($matchedUbsItems) > 0){
+						$finish_item += 1;
+			            if($finish_item %1000 ==0)
+							$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
 		            	continue;
+		            }
+		            
+
 		            	
+
 		            $ubsItems = UbsInventory::model()->findAll(
 		            	"upc=:upc and mfg_name=:mfg_name and upc!='' and mfg_name !=''",
 						array(
@@ -481,8 +574,13 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 						$this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
 		            
+
+/*
 		            if(count($matchedUbsItems) > 0)
 		            	continue;
+*/
+
+
 		            	
 		            $ubsItems = UbsInventory::model()->findAll(
 		            	"mfg_title=:mfg_title and mfg_name=:mfg_name and mfg_title!='' and mfg_name!=''",
@@ -508,8 +606,15 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 		              $this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
 					
-					if(count($matchedUbsItems) > 0)
+
+					if(count($matchedUbsItems) > 0){
+						$finish_item += 1;
+			            if($finish_item %1000 ==0)
+							$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
 		            	continue;
+		            }
+
+
 		            	
 					$ubsItems = UbsInventory::model()->findAll("upc=:upc and upc!=''",array(
 		              'upc' => $vsheet->upc,
@@ -532,9 +637,17 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 						$this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
 		            
-		            if(count($matchedUbsItems) > 0)
+
+					if(count($matchedUbsItems) > 0){
+						$finish_item += 1;
+			            if($finish_item %1000 ==0)
+							$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
 		            	continue;
+		            }
+
+
 		            	
+
 		            	
 		            $ubsItems = UbsInventory::model()->findAll("mfg_name=:mfg_name and mfg_name=''",array(
 		              'mfg_name' => $vsheet->mfg_sku,
@@ -556,8 +669,16 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 						$matchedUbsItems[] = $item->id;
 						$this->_updateLogModel->saveCounters(array('checker_item'=>1));
 		            }
-		            if(count($matchedUbsItems) > 0)
+
+					if(count($matchedUbsItems) > 0){
+						$finish_item += 1;
+			            if($finish_item %1000 ==0)
+							$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
 		            	continue;
+		            }
+
+
+
 		            if (empty($matchedUbsItems)) {
 						$newItem = new SupItemsNewManage;
 						$newItem->import_id = $this->_routineModel->id;
@@ -581,25 +702,26 @@ $this->_updateLogModel->saveCounters(array('instock_item'=>1));
 
 			}
 				
-				
 
 
-		$finish_item += 1;
-$this->_updateLogModel->saveCounters(array('finish_item'=>1));
-        /*
-				
 
-				if($supItem != null){
-					
-				}else{//insert new item
-		          // Skip Undecided items
-		          
-*/
-			if($aaaaa++ > 1000)
-				return;
+
+			$finish_item += 1;
+//$this->_updateLogModel->saveCounters(array('finish_item'=>1));
+			if($finish_item %1000 ==0)
+				$this->_updateLogModel->saveCounters(array('finish_item'=>+1000));
+
+
 			endforeach;
 		}
 		
+		$this->_updateLogModel->instock_item = $instock_item;
+		$this->_updateLogModel->finish_item = $finish_item;
+		$this->_updateLogModel->save(false);
+
+				
+		
+
 	}
 	
 	
@@ -642,7 +764,53 @@ $this->_updateLogModel->saveCounters(array('finish_item'=>1));
 			':sup_id'=>$this->_routineModel->sup_id,
 			':import_id'=>$this->_routineModel->id,
 		);
+		$criteria->select= '1';
+		$pageSize = 100;
+		$count = ImportVsheet::model()->count($criteria);
+
+		$page = ceil($count/$pageSize);
 		
+		
+		for($i=0;$i<$page;$i++){
+			
+			$dataProvider_1=new CActiveDataProvider('SupInventory', array(
+			    'criteria'=>array(
+			    	'condition'=>'sup_id=:sup_id and sup_vsku not in (select sup_vsku from vims_import_vsheet where import_id=:import_id)',
+			    	'params'=>array(
+			    		':sup_id'=>$this->_routineModel->sup_id,
+						':import_id'=>$this->_routineModel->id,
+			    	),
+			    	'with'=>array(
+			    		'supplier',
+			    		'ubs_inventory'
+			    	),
+			    ),
+			    'pagination'=>array(
+			        'pageSize'=>$pageSize,
+			        'currentPage'=>$i,
+			    ),
+			    'totalItemCount'=>$count,
+			));
+
+			$importVsheets = $dataProvider_1->getData();
+			foreach($dropItem as $id=>$supitem):
+				$supitem->sup_drop = 1;
+				$this->_updateLogModel->drop_items .= 'Sup vSKU:'.$supitem->sup_vsku.'<br/>';
+				$this->_updateLogModel->saveCounters(array('drop_items'=>1));
+				$supitem->sup_status = SupInventory::STATUS_MISSING;
+				$supitem->qty_total_c = 0; // reset total
+				$supitem->save();
+
+
+				if (!$model = SupItemsMissing::model()->findByPk($supitem->id))
+					$model = new SupItemsMissing;
+				$model->attributes = $supitem->attributes;
+				$model->sup_status = SupItemsMissing::STATUS_MISSING;
+				$model->save();
+			endforeach;
+		}
+		
+/*
 		$dropItem = SupInventory::model()->with('supplier','ubs_inventory')->findAll($criteria);
 		
 		foreach($dropItem as $id=>$supitem){
@@ -660,6 +828,7 @@ $this->_updateLogModel->saveCounters(array('finish_item'=>1));
       $model->sup_status = SupItemsMissing::STATUS_MISSING;
       $model->save();
 		}
+*/
 	}
 
 	public function checkQOH($sku, $currentQOH, $lastQOH)
@@ -697,9 +866,11 @@ $this->_updateLogModel->saveCounters(array('finish_item'=>1));
 	}
 	public function checkPrice($sku, $currentPrice, $lastPrice)
 	{
-//		echo $currentPrice,',';
-//		echo $lastPrice;
-//		echo '<br>';
+
+
+
+
+
 		$pricePercent = isset($this->_routineModel->update->getSupplierQaModel($this->_routineModel->sup_id)->price_percent)?
 								$this->_routineModel->update->getSupplierQaModel($this->_routineModel->sup_id)->price_percent:
 								$this->_routineModel->update->getGlobalQaModel()->price_percent;
@@ -756,7 +927,11 @@ $this->_updateLogModel->saveCounters(array('finish_item'=>1));
 	{
 	
 	
-		$itemChange = $this->_routineModel->update->getSupplierQaModel($this->_routineModel->sup_id)->instock_percent != NULL?
+
+		$itemChange = isset($this->_routineModel->update->getSupplierQaModel($this->_routineModel->sup_id)->instock_percent)?
+
+
+
 								$this->_routineModel->update->getSupplierQaModel($this->_routineModel->sup_id)->instock_percent:
 								$this->_routineModel->update->getGlobalQaModel()->instock_percent;
 							

@@ -28,7 +28,7 @@ class UbsInventoryController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'admin', 'delete', 'ajaxubs', 'cqohrelation', 'manual', 'importRemote', 'ubsItemOutBound', 'ubsItemOutBoundExpand', 'odbctest', 'writefront', 'reload', 'index', 'view'),
+                'actions' => array('freshUpdate', 'create', 'update', 'admin', 'delete', 'ajaxubs', 'cqohrelation', 'manual', 'importRemote', 'ubsItemOutBound', 'ubsItemOutBoundExpand', 'odbctest', 'writefront', 'reload', 'index', 'view'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -302,6 +302,15 @@ class UbsInventoryController extends Controller
         ));
     }
 
+
+    public function actionFreshUpdate($id)
+    {
+        $model = $this->loadModel($id);
+        $model->update_time = date('Y-m-d H:i:s');
+        $model->update_by = Yii::app()->user->id;
+        $model->save(false);
+    }
+
     /**
      * Updates a particular model.
      * If update is successful, the browser will be redirected to the 'view' page.
@@ -312,7 +321,10 @@ class UbsInventoryController extends Controller
 
         $model = $this->loadModel($id);
         // Uncomment the following line if AJAX validation is needed
-
+        if (time() - strtotime($model->update_time) < 5 && $model->update_by != Yii::app()->user->id) {
+            Yii::app()->user->setFlash('error', "Locked, you can read only");
+            $this->redirect(array('admin'));
+        }
         $this->performAjaxValidation($model);
         if (isset($_POST['UbsInventory']))
         {

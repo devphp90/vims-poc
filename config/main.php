@@ -24,7 +24,11 @@ return array(
 
 	'preload'=>array(
 
-		'log',
+
+/* //		'log', */
+
+
+
 
 		'bootstrap',
 
@@ -106,11 +110,17 @@ return array(
 
 		),
 
+
+/*
 		'cache'=>array(
 
 		    'class'=>'CApcCache',
 
 		  ),
+*/
+
+
+
 
 		'clientScript'=>array(
 
@@ -166,9 +176,32 @@ return array(
 
 		),
 
+/*
 		'db'=>array(
 
-			'connectionString' => 'mysql:host=localhost;dbname=vims_ubs',
+			'connectionString' => 'mysql:host=mysql1;dbname=vims_ubs',
+
+			'tablePrefix'=>'vims_',
+
+			'username' => 'root',
+
+			'password' => 'passwordformysql',
+
+			'charset' => 'utf8',
+
+			'enableParamLogging'=>true,
+
+			'enableProfiling'=>true,
+			'persistent'=>true
+
+		),
+*/
+		'db'=>array(
+
+			'connectionString' => 'mysql:host=mysql1;dbname=vims_ubs',
+
+
+
 
 			'tablePrefix'=>'vims_',
 
@@ -216,13 +249,20 @@ return array(
 
 		),
 
+
+/*
+
+
 		'log'=>array(
 
 			'class'=>'CLogRouter',
 
 			'routes'=>array(
 
-/*
+
+
+
+
 				array(
 
 					'class'=>'CFileLogRoute',
@@ -230,7 +270,10 @@ return array(
 					'levels'=>'error, warning, trace',
 
 				),
-*/
+
+
+
+
 
 
 
@@ -240,7 +283,18 @@ return array(
 
 	            	'class'=>'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
 
-	            	'ipFilters'=>array('219.84.63.17','219.85.164.215','1.34.172.93','192.168.1.102'),
+
+	            	'ipFilters'=>array(
+						'114.46.148.147',
+						'61.62.203.180',
+						'219.85.164.215',
+						'1.34.172.93',
+						'192.168.1.102',
+						'61.62.203.180',
+						'27.105.9.191',
+					),
+
+
 
 	            ),
 
@@ -251,6 +305,10 @@ return array(
 			),
 
 		),
+
+*/
+
+
 
 	),
 

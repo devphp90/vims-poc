@@ -40,7 +40,7 @@ class TabsImportLogController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('failImportAndUpdate', 'create', 'update', 'admin', 'delete', 'logview', 'supdelall', 'supreset', 'failRoutine', 'index', 'view'),
+                'actions' => array('test','failImportAndUpdate', 'create', 'update', 'admin', 'delete', 'logview', 'supdelall', 'supreset', 'failRoutine', 'index', 'view'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -55,12 +55,19 @@ class TabsImportLogController extends Controller
         $count = Yii::app()->db->createCommand("select count(a.tabs_id) count from ($sql) a")->queryScalar();
         $provider = new CSqlDataProvider($sql, array(
             'totalItemCount' => $count,
+            'keyField' => 'tabs_id',
             'pagination' => array(
                 'pageSize' => 20,
             ),
         ));
         $this->render('fail_import_update', array('dataProvider' => $provider));
 
+    }
+    public function actionTest()
+    {
+        $sql = TabsImportLog::getFailImportUpdateSql();
+        $data = Yii::app()->db->createCommand($sql)->queryRow();
+        var_dump($data);
     }
 
     public function actionFailRoutine()

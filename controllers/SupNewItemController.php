@@ -58,8 +58,11 @@ class SupNewItemController extends Controller
 
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
 
-				'actions'=>array('update','admin','delete','deleteNoMatch','deleteAllNoMatch','deleteAllMisMatch', 'deleteAllMarkedAsMisMatch',
-          'deleteAll', 'import','newitemlink','updateMatch','noMatch', 'misMatch', 'importedItem','updateStatus','noMatchExport',
+
+				'actions'=>array('update','admin','delete','deleteNoMatch','deleteAllNoMatch','deleteAllMisMatch', 'deleteAll','deleteAllMarkedAsMisMatch',
+          'import','newitemlink','updateMatch','noMatch', 'misMatch', 'importedItem','updateStatus','noMatchExport',
+
+
           'importpage','supchecker','groupsupchecker','calculate','updatePageY','index','view','updatePageN'),
 
 				'users'=>array('@'),
@@ -347,6 +350,7 @@ class SupNewItemController extends Controller
     $this->redirect(array('misMatch', 'sup_id' => $id));
   }
 
+
   /**
    * Delete all marked by User as MisMatch on checkers page -- All N
    *
@@ -367,6 +371,7 @@ class SupNewItemController extends Controller
 
     $this->redirect(array('supChecker', 'supid' => $id));
   }
+
 
 
 

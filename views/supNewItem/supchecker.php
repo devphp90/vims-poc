@@ -288,10 +288,10 @@ $columns = array(
     array(
         'header' => 'Match<br/>By',
         'name' => 'match_by',
-        'htmlOptions' => array(
-            'style' => 'width:23px;',
+        'headerHtmlOptions' => array(
+            'style' => 'width:23px; ',
         ),
-        'value' => '$data->match_by_status[$data->match_by]',
+        'value' => '$data->getMatchByStatus()',
         'filter' => array(
             SupItemsNewManage::MATCH_VSKU => 'vSKU',
             SupItemsNewManage::MATCH_MPN_UPC_NAME => 'MPN+UPC+Nam',
@@ -313,14 +313,14 @@ $columns = array(
     array(
         'header' => '% Diff',
         'name' => 'percent_diff',
-        'value' => '$data->ubsinventory->price == 0?"n/a":sprintf("%.2f",(abs($data->ubsinventory->price-$data->sup_price)/$data->ubsinventory->price)*100)."%"',
+        'value' => '!is_null($data->ubsinventory) ? ($data->ubsinventory->price == 0 ? "n/a" : sprintf("%.2f",(abs($data->ubsinventory->price-$data->sup_price)/$data->ubsinventory->price)*100)."%" ) : ""',
         'htmlOptions' => array(
             'style' => 'width:55px;',
         ),
     ),
     array(
         'header' => 'UBS<br/>Item<br/>Cost',
-        'value' => '$data->ubsinventory->price',
+        'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->price : ""',
         'htmlOptions' => array(
             'style' => 'width:35px;',
         ),
@@ -338,20 +338,23 @@ $columns = array(
         'htmlOptions' => array(
             'style' => 'width:30px;',
         ),
-        'value' => '(!empty($data->ubsinventory)?($data->ubsinventory->price-$data->sup_price):\'\')',
+        'value' => '(!empty($data->ubsinventory) ? ($data->ubsinventory->price-$data->sup_price):\'\')',
     ),
     array(
         'header' => 'UBS<br/>SKU',
         'name' => 'ubs_sku',
-        'value' => '$data->ubsinventory->sku'
+        'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->sku : ""',
+		 'headerHtmlOptions' => array(
+            'style' => 'width:100px;',
+        ),
     ),
     array(
         'header' => 'UBS Item Name',
         'type' => 'raw',
-        'value'=>'(strlen($data->ubsinventory->sku_name)>30)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,30)."...</a>":$data->ubsinventory->sku_name',
+        'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>18)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,18)."...</a>":$data->ubsinventory->sku_name) : ""',
         //'value' => '$data->ubsinventory->sku_name',
-        'htmlOptions' => array(
-            'style' => 'width:100px;',
+        'headerHtmlOptions' => array(
+            'style' => 'width:200px;',
         ),
     ),
     array(
@@ -365,8 +368,8 @@ $columns = array(
         'header' => 'Supp<br/>Mfg<br/>Name',
         'name' => 'mfg_name',
         'type' => 'raw',
-        'htmlOptions' => array(
-            'style' => 'width:120px;',
+        'headerHtmlOptions' => array(
+            'style' => 'width:200px;',
         ),
         'value'=>'(strlen($data->mfg_name)>20)?"<a href=\"#\" title=\"".$data->mfg_name."\" rel=\"tooltip\">".substr($data->mfg_name,0,20)."...</a>":$data->mfg_name',
         //'value' => '$data->mfg_name',
@@ -378,11 +381,17 @@ $columns = array(
     array(
         'header' => 'Supp<br/>MPN',
         'name' => 'mfg_sku',
+		'headerHtmlOptions' => array(
+            'style' => 'width:80px;',
+        ),
     ),
     array(
         'header' => 'UBS<br/>MPN',
         'name' => 'ubsinventory.mfg_name',
-        'value' => '$data->ubsinventory->mfg_name'
+        'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->mfg_name : ""',
+		'headerHtmlOptions' => array(
+            'style' => 'width:80px;',
+        ),
     ),
     array(
         'header' => 'Supp<br/>UPC',
@@ -397,7 +406,7 @@ $columns = array(
     array(
         'header' => 'Will<br/>Auto<br/>Accept?',
         'type' => 'raw',
-        'value' => '$data->importStatus != \'Will Import\'?CHtml::link("no","#",array("rel"=>"tooltip","title"=>$data->importStatus)):yes',
+        'value' => '$data->importStatus != \'Will Import\' ? CHtml::link("no","#",array("rel"=>"tooltip","title"=>$data->importStatus)) : "yes"',
         'htmlOptions' => array(
             'style' => 'width:20px;',
         ),
@@ -416,7 +425,7 @@ if (!$supplier) {
 $columns[] = array(
     'header' => 'Info',
     'type' => 'raw',
-    'value' => '"<a href=\"#\" class=\"checkernum\" :checkid=\"".$data->id."\" title=\"ubs_id = ".$data->ubsinventory->id.",vims_id = ".$data->id.",vsku =".$data->sup_vsku.",import_id=".$data->import_routine->id."\" rel=\"tooltip\">info</a>"',
+    'value' => '"<a href=\"#\" class=\"checkernum\" :checkid=\"".$data->id."\" title=\"ubs_id = ". (!is_null($data->ubsinventory) ?$data->ubsinventory->id : 0).",vims_id = ".$data->id.",vsku =".$data->sup_vsku.",import_id=".$data->import_routine->id."\" rel=\"tooltip\">info</a>"',
     'htmlOptions' => array('style' => 'width: 50px'),
     'headerHtmlOptions' => array('style' => 'width: 50px'),
 );

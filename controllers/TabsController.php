@@ -242,15 +242,19 @@ class TabsController extends Controller
         if (isset($_POST['Supplier'])) {
             //$model->attributes=$_POST['Tabs'];
             $model->supplier->attributes = $_POST['Supplier'];
+            $model->importRoutine->scenario = 'sup1';
             $model->importRoutine->attributes = $_POST['ImportRoutine'];
             $model->importRoutine2->attributes = $_POST['ImportRoutine2'];
-            $model->importRoutine->scenario = 'sup1';
 
 
             if ($model->supplier->save()) {
                 $model->importRoutine->supplier_name = $model->supplier->name;
                 $model->importRoutine2->supplier_name = $model->supplier->name;
                 if ($model->importRoutine->save() && $model->importRoutine2->save() && $model->save(false)) {
+
+//                    var_dump($_POST['ImportRoutine']);
+//                    var_dump($model->importRoutine->attributes); die();
+
                     Yii::app()->user->setFlash('success', "Successfully updated.");
                     $this->redirect(array('admin'));
                 } else {

@@ -1,8 +1,8 @@
-/*! X-editable - v1.3.0 
-* In-place editing with Twitter Bootstrap, jQuery UI or pure jQuery
-* http://github.com/vitalets/x-editable
-* Copyright (c) 2012 Vitaliy Potapov; Licensed MIT */
-
+/*! X-editable - v1.3.0 
+* In-place editing with Twitter Bootstrap, jQuery UI or pure jQuery
+* http://github.com/vitalets/x-editable
+* Copyright (c) 2012 Vitaliy Potapov; Licensed MIT */
+
 /**
 Form with single input element, two buttons and two states: normal/loading.
 Applied as jQuery method to DIV tag (not to form tag!). This is because form can be in loading state when spinner shown.
@@ -530,7 +530,7 @@ Editableform is linked with one of input types, e.g. 'text', 'select' etc.
 
     //error class attached to editable-error-block
     $.fn.editableform.errorBlockClass = 'editable-error';
-}(window.jQuery));
+}(window.jQuery));
 /**
 * EditableForm utilites
 */
@@ -659,7 +659,7 @@ Editableform is linked with one of input types, e.g. 'text', 'select' etc.
            return $('<div>').text(str).html();
        }           
     };      
-}(window.jQuery));
+}(window.jQuery));
 /**
 Attaches stand-alone container with editable-form to HTML element. Element is used only for positioning, value is not stored anywhere.<br>
 This method applied internally in <code>$().editable()</code>. You should subscribe on it's events (save / cancel) to get profit of it.<br>
@@ -1041,7 +1041,7 @@ Applied as jQuery method.
     };    
 
 }(window.jQuery));
-
+
 /**
 Makes editable any HTML element on the page. Applied as jQuery method.
 
@@ -1612,7 +1612,7 @@ Makes editable any HTML element on the page. Applied as jQuery method.
     };
     
 }(window.jQuery));
-
+
 /**
 AbstractInput - base class for all editable inputs.
 It defines interface to be implemented by any input type.
@@ -1796,7 +1796,7 @@ To create your own input you can inherit from this class.
     $.extend($.fn.editabletypes, {abstractinput: AbstractInput});
         
 }(window.jQuery));
-
+
 /**
 List - abstract class for inputs that have source option loaded from js array or via ajax
 
@@ -2078,7 +2078,7 @@ List - abstract class for inputs that have source option loaded from js array or
 
     $.fn.editabletypes.list = List;      
 
-}(window.jQuery));
+}(window.jQuery));
 /**
 Text input
 
@@ -2131,7 +2131,7 @@ $(function(){
     $.fn.editabletypes.text = Text;
 
 }(window.jQuery));
-
+
 /**
 Textarea input
 
@@ -2224,7 +2224,7 @@ $(function(){
     $.fn.editabletypes.textarea = Textarea;    
 
 }(window.jQuery));
-
+
 /**
 Select (dropdown)
 
@@ -2298,7 +2298,7 @@ $(function(){
 
     $.fn.editabletypes.select = Select;      
 
-}(window.jQuery));
+}(window.jQuery));
 /**
 List of checkboxes. 
 Internally value stored as javascript array of values.
@@ -2448,7 +2448,7 @@ $(function(){
     $.fn.editabletypes.checklist = Checklist;      
 
 }(window.jQuery));
-
+
 /**
 HTML5 input types.
 Following types are supported:
@@ -2636,7 +2636,7 @@ Range (inherit from number)
         inputclass: 'input-medium'
     });
     $.fn.editabletypes.range = Range;
-}(window.jQuery));
+}(window.jQuery));
 /*
 Editableform based on Twitter Bootstrap
 */
@@ -2657,7 +2657,7 @@ Editableform based on Twitter Bootstrap
     $.fn.editableform.errorGroupClass = 'error';
     $.fn.editableform.errorBlockClass = null;    
     
-}(window.jQuery));
+}(window.jQuery));
 /**
 * Editable Popover 
 * ---------------------
@@ -2749,7 +2749,7 @@ Editableform based on Twitter Bootstrap
     });
     */    
 
-}(window.jQuery));
+}(window.jQuery));
 /**
 Bootstrap-datepicker.  
 Description and examples: http://vitalets.github.com/bootstrap-datepicker.  
@@ -2924,7 +2924,7 @@ $(function(){
     $.fn.editabletypes.date = Date;
 
 }(window.jQuery));
-
+
 /* =========================================================
  * bootstrap-datepicker.js
  * http://www.eyecon.ro/bootstrap-datepicker

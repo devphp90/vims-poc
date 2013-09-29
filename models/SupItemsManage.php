@@ -1,3 +1,4 @@
+
 <?php
 
 /**
@@ -591,4 +592,5 @@ class SupItemsManage extends CActiveRecord
 			),
 		));
 	}
+
 }

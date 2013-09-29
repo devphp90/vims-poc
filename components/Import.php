@@ -52,21 +52,21 @@ class Import
 		$this->_importRoutineModel2 = $this->_tabsModel->importRoutine2; 
 		
 		$this->_updateDir = Yii::getPathOfAlias('webroot.upload.updateTemp');
-		
+
 		$this->_importSheet2 = $importSheet2;
 		
 		$this->_dbcommand = Yii::app()->db->createCommand();
-
 
 	}
 	
 	public function run()
 	{
 
-		$this->importStatus('data_integrity',1);
+		$this->importStatus('data_integrity_type',1);
 		
 		if($this->_tabsModel->supplier->active == 0 )
-			$this->updateLog('data_integrity','Supplier is Inactive',true);
+			$this->updateLog('data_integrity_type','Supplier is Inactive',true);
+
 		
 		$this->_importLogModel->download_finish_time = date("Y-m-d H:i:s");
 		
@@ -77,7 +77,7 @@ class Import
 		
 		$this->importSheet1();
 		
-		
+
 
 		if($this->_importSheet2)
 			$this->importSheet2();
@@ -85,6 +85,14 @@ class Import
 		$this->_importLogModel->finish_time = date("Y-m-d H:i:s");
 		
 		$this->_importLogModel->save();
+		
+		$updateUrl = Yii::app()->controller->createAbsoluteUrl("/importRoutine/updateFile",array(
+			'id'=>$this->_tabsModel->import_routine_id,
+		));
+			
+		$command = 'cd /tmp;wget --delete-after -q '.$updateUrl.' > /dev/null &';
+		exec($command);
+//		echo $command;
 		
 		
 	}
@@ -108,7 +116,7 @@ class Import
 		
 		
 		
-		$this->importStatus('data_integrity',3);
+		$this->importStatus('data_integrity_type',3);
 		if($this->_importRoutineModel->method_id !=4){
 			$this->importStatus('overall_item',1);
 		
@@ -121,6 +129,7 @@ class Import
 	
 	public function importSheet2()
 	{	
+
 		$this->_importFile = $this->_updateDir.DIRECTORY_SEPARATOR.$this->_importRoutineModel2->id;
 		
 		$this->_routineModel = $this->_importRoutineModel2;
@@ -267,8 +276,11 @@ class Import
 	}
 	
 	public function importStatus($step,$status)
-	{
-		$this->_importLogModel->{$step.'_status'} = $status;
+	{	
+		$a = $step.'_status';
+		
+		$this->_importLogModel->$a = $status;
+
 		$this->_importLogModel->save();
 	}
 	
@@ -276,12 +288,14 @@ class Import
 	{
 		$command = Yii::app()->db->createCommand();
 		$command->delete('vims_import_vsheet', 'import_id=:id', array(':id'=>$id));	
+
 	}
 	
 	public function getDownloadFile()
 	{
-		
+
 		if(is_writable($this->_updateDir)){
+
 			$ch = curl_init();
 			$file = fopen ($this->_importFile, 'w');
 	
@@ -298,9 +312,12 @@ class Import
 			curl_close($ch);
 			fclose($file);
 			
-		}		
+		}else{
+			//echo 'gg';
+			$this->updateLog('data_integrity_type',$this->_updateDir.' unwrittable',true);
+		}
 		if(!filesize($this->_importFile))
-			$this->updateLog('data_integrity','Download file error',true);
+			$this->updateLog('data_integrity_type','Download file error',true);
 	}
 	
 	public function updateLog($step,$reason = '',$isFatal = false)
@@ -370,13 +387,16 @@ class Import
 					$this->checkColumnNum($row);
 					$this->saveColumnNum($row);
 				}
+
 				if($this->_routineModel->match_startby-1 > $id++)
 					continue;
+
 				$this->genPureData($row);
 		
 		    }
 		    fclose($handle);
 		}
+
 	}
 	
 	public function saveColumnNum($row)
@@ -389,7 +409,7 @@ class Import
 	{
 		if($this->_importRoutineModel->method_id !=4){
 			if(($this->_columnNum = count($row)) == 0)
-				$this->updateLog("data_integrity", 'Column Integrity fail(Current column is zero.)',true);
+				$this->updateLog("data_integrity_type", 'Column Integrity fail(Current column is zero.)',true);
 	
 			if($this->_tabsModel->column_number != 0 && $this->_tabsModel->column_number != $this->_columnNum)
 				$this->updateLog("data_integrity_count", 
@@ -416,7 +436,9 @@ class Import
 	public function checkOverallItem()
 	{
 		if($this->_importRoutineModel->method_id !=4){
-		$itemChange = $this->_routineModel->update->getSupplierQaModel($this->_tabsModel->supplier_id)->item_percent != NULL?
+
+		$itemChange = isset($this->_routineModel->update->getSupplierQaModel($this->_tabsModel->supplier_id)->item_percent)?
+
 								$this->_routineModel->update->getSupplierQaModel($this->_tabsModel->supplier_id)->item_percent:
 								$this->_routineModel->update->getGlobalQaModel($this->_tabsModel->supplier_id)->item_percent;
 							
@@ -490,7 +512,9 @@ class Import
 		$totalQOH = 0;
 		$item = 0;
 		$result = array();
-		$result['sup_vsku'] = strtolower($row[$this->_match['match1']].
+
+		@$result['sup_vsku'] = strtolower($row[$this->_match['match1']].
+
 									$row[$this->_match['match2']].
 									$row[$this->_match['match3']]);
 									
@@ -525,28 +549,15 @@ class Import
 
 	      	$result['sheet_type'] = 0;
 	      	$result['import_id'] = $this->_routineModel->id;
+
+	      	$result['sup_id'] = $this->_routineModel->sup_id;
+
 		  	//tuned up, still testing
 			$this->_dbcommand->insert('vims_import_vsheet', $result);
 			
 			if($this->_countData %1000 ==0)
 				$this->_importLogModel->saveCounters(array('item'=>+1000));
-				
-			//$this->_importLogModel->saveCounters(array('item'=>+1));
-/*
-			$vsheet = new ImportVsheet;
-			$vsheet->attributes = $result;
-*/
-					return;
-/*
-			
-*/
-/*
-			if($vsheet->save()){
-				//$this->_importLogModel->saveCounters(array('item'=>+1));
-				return true;
-			}else
-				var_dump($vsheet->getErrors());
-*/
+
 
 		}
 		

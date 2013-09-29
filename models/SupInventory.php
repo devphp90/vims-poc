@@ -146,6 +146,7 @@ class SupInventory extends CActiveRecord
 	 */
 	public function validateSupstatus($attribute,$params)
 	{
+		if($this->supplier != null)
 		if($this->supplier_name != $this->supplier->name){
 		$supplierRow = $this->getValidateSupModel();
 
@@ -213,6 +214,9 @@ class SupInventory extends CActiveRecord
 			'create_user' => array(self::BELONGS_TO, 'User', 'create_by'),
 			'update_user' => array(self::BELONGS_TO, 'User', 'update_by'),
 			'warehouse1' => array(self::HAS_ONE, 'SupWarehouse', array('sup_id'=>'sup_id')),
+
+			'warehouseitems' => array(self::HAS_MANY, 'SupWarehouseItem', array('vims_id')),
+
 		);
 	}
 
@@ -782,16 +786,22 @@ class SupInventory extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->select = '*';
-		$criteria->with= array('supplier');
+
+		$criteria->with= array('supplier','ubs_inventory');
+
 		$criteria->together = true;
 		$criteria->condition = 'sup_id=:sup_id';
 		$criteria->params = array(
 			':sup_id'=>$id,
 		);
-		$criteria->join = 'left join vims_ubs_inventory as ubs on t.ubs_id= ubs.id';
+
+//		$criteria->join = 'left join vims_ubs_inventory as ubs on t.ubs_id= ubs.id';
 
 		$criteria->compare('t.id',$this->id);
-		$criteria->compare('ubs.sku',$this->ubs_sku,true);
+		$criteria->compare('ubs_inventory.sku',$this->ubs_sku,true);
+
+
+
 
 		$criteria->compare('sup_id',$this->sup_id);
 		$criteria->compare('sup_sku',$this->sup_sku,true);

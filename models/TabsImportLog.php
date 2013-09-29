@@ -186,8 +186,23 @@ class TabsImportLog extends CActiveRecord
     }
     public static function getFailImportUpdateSql()
     {
+//        return "
+//            SELECT  create_time, 'instock_item_status'= '', i.id as tabs_import_log_id, download_sheet2_reason, filetime, filetime2, overall_item_reason, overall_item_status, item, data_integrity_type_status,data_integrity_count_reason, column_count, data_integrity_type_reason, data_integrity_count_status,  sheet1_url, sheet2_url, i.tabs_id as tabs_id, download_sheet1_status, download_sheet2_status, download_sheet1_reason, data_integrity_status, data_integrity_reason, 'instock_item_reason' = ''
+//            FROM `vims_tabs_import_log` `i`
+//            WHERE (download_sheet1_status = 2 or download_sheet2_status =2 or i.data_integrity_status=2 or overall_item_status = 2)
+//            AND download_sheet1_reason NOT LIKE '%Supplier is Inactive%'
+//            AND create_time IN (
+//                SELECT max( create_time )
+//                FROM vims_tabs_import_log i2
+//                GROUP BY tabs_id )
+//            UNION
+//            SELECT 'create_time' = '',  instock_item_status, 'tabs_import_log_id' ='', 'download_sheet2_reason'= '', 'filetime'='', 'filetime2' = '', 'overall_item_reason'='', 'overall_item_status'='', item, 'data_integrity_type_status' = '','data_integrity_count_reason' = '', 'column_count' = '', 'data_integrity_type_reason' = '', 'data_integrity_count_status'='', 'sheet1_url' ='', 'sheet2_url' ='', tabs_id, 'download_sheet1_status' = '', 'download_sheet2_status' = '', 'download_sheet1_reason' = '', data_integrity_status, data_integrity_reason ,  instock_item_reason
+//            FROM `vims_tabs_update_log` `u`
+//            WHERE (data_integrity_status = 2 or instock_item_status =2)
+//        ";
+
         return "
-            SELECT create_time, i.id as tabs_import_log_id, filetime, filetime2, overall_item_reason, overall_item_status, item, data_integrity_type_status,data_integrity_count_reason, column_count, data_integrity_type_reason, data_integrity_count_status,  sheet1_url, sheet2_url, i.tabs_id as tabs_id, download_sheet1_status, download_sheet2_status, download_sheet1_reason, data_integrity_status, data_integrity_reason, 'instock_item_status' = '', 'instock_item_reason' = ''
+            SELECT  create_time, 0 as instock_item_status, i.id as tabs_import_log_id, download_sheet2_reason, filetime, filetime2, overall_item_reason, overall_item_status, item, data_integrity_type_status,data_integrity_count_reason, column_count, data_integrity_type_reason, data_integrity_count_status,  sheet1_url, sheet2_url, i.tabs_id as tabs_id, download_sheet1_status, download_sheet2_status, download_sheet1_reason, data_integrity_status, data_integrity_reason, 0 as instock_item_reason
             FROM `vims_tabs_import_log` `i`
             WHERE (download_sheet1_status = 2 or download_sheet2_status =2 or i.data_integrity_status=2 or overall_item_status = 2)
             AND download_sheet1_reason NOT LIKE '%Supplier is Inactive%'
@@ -196,10 +211,10 @@ class TabsImportLog extends CActiveRecord
                 FROM vims_tabs_import_log i2
                 GROUP BY tabs_id )
             UNION
-            SELECT 'create_time' = '', 'tabs_import_log_id' ='', 'filetime'='', 'filetime2' = '', 'overall_item_reason'='', 'overall_item_status'='', item, 'data_integrity_type_status' = '','data_integrity_count_reason' = '', 'column_count' = '', 'data_integrity_type_reason' = '', 'data_integrity_count_status'='', 'sheet1_url' ='', 'sheet2_url' ='', tabs_id, 'download_sheet1_status' = '', 'download_sheet2_status' = '', 'download_sheet1_reason' = '', data_integrity_status, data_integrity_reason , instock_item_status, instock_item_reason
+            SELECT 'create_time' = '',  instock_item_status, 'tabs_import_log_id' ='', 'download_sheet2_reason'= '', 'filetime'='', 'filetime2' = '', 'overall_item_reason'='', 'overall_item_status'='', item, 'data_integrity_type_status' = '','data_integrity_count_reason' = '', 'column_count' = '', 'data_integrity_type_reason' = '', 'data_integrity_count_status'='', 'sheet1_url' ='', 'sheet2_url' ='', tabs_id, 'download_sheet1_status' = '', 'download_sheet2_status' = '', 'download_sheet1_reason' = '', data_integrity_status, data_integrity_reason ,  instock_item_reason
             FROM `vims_tabs_update_log` `u`
             WHERE (data_integrity_status = 2 or instock_item_status =2)
-
         ";
+
     }
 }

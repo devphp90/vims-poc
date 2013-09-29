@@ -28,7 +28,7 @@ class SupItemsSyncController extends Controller
         return array(
 
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'index', 'view', 'delete', 'import','deleteAll','sync'),
+                'actions' => array('create', 'update', 'index', 'view', 'delete', 'import','deleteAll','sync','CustomSync','confirmCustomSync'),
                 'users' => array('@'),
             ),
 
@@ -38,6 +38,187 @@ class SupItemsSyncController extends Controller
         );
     }
 
+	public function actionCustomsync($ubs_sup_id, $vims_sup_id, $column_1, $column_2, $column_3)
+	{
+		$columns = array(
+			'SupplierName',
+			'SupplierID',
+			'SKU',
+			'MPN',
+			'upc',
+			'SupplierSKU',
+			'ItemName',
+		);
+		@$vsku = array_filter(array(
+			$columns[$column_1-1],$columns[$column_2-1],$columns[$column_3-1]
+		));
+		$seedModel = UbsSupplierItemSeed::model()->findByAttributes(array('SupplierID'=>$ubs_sup_id));
+		if($seedModel == null){
+			echo 'Seed Supplier Not Found.';
+			exit;
+		}
+		$targetModel = Supplier::model()->findByPk($vims_sup_id);
+		if($seedModel == null){
+			echo 'Seed Supplier Not Found.';
+			exit;
+		}
+		echo 'Seed Supplier: '. $seedModel->SupplierName.' ('.$seedModel->SupplierID.') '.'<br/><br/>';
+		echo 'Target Supplier: '. $targetModel->name.' ('.$targetModel->id.') '.'<br/><br/>';
+		echo 'Target Supplier vSKU: '. implode($vsku, ' + ').'<br/><br/>';
+		echo 'Expect Import Items: '. UbsSupplierItemSeed::model()->countByAttributes(array('SupplierID'=>$ubs_sup_id)).'<br/><br/>';
+		
+		echo 'Preview Imported for first row:<br/><br/>';
+		echo '---------seed row--------------<br/>';
+		foreach($seedModel->attributes as $col=>$value){
+			echo $col.': '.$value.'<br/>';
+		}
+		echo '-------------------------------<br/><br/>';
+		$supModel = new SupInventory;
+
+		@$supModel->sup_vsku = 
+			(isset($vsku[0])?$seedModel->{$vsku[0]}:''). 
+			(isset($vsku[1])?$seedModel->{$vsku[1]}:''). 
+			(isset($vsku[2])?$seedModel->{$vsku[2]}:'');
+		$supModel->supplier_name = $targetModel->name;
+		$supModel->ubs_sku = $seedModel->$columns[2];
+		$supModel->mfg_sku = $seedModel->$columns[3];
+		$supModel->mfg_upc = $seedModel->$columns[4];
+		$supModel->sup_sku = $seedModel->$columns[5];
+		$supModel->sup_sku_name = $seedModel->$columns[6];
+		echo '---------Sup Item Received--------------<br/>';
+			echo 'Sup vSKU: '.$supModel->sup_vsku.'<br/>';
+			echo 'UBS SKU: '.$supModel->ubs_sku.'<br/>';
+			echo 'MPN: '.$supModel->mfg_sku.'<br/>';
+			echo 'UPC: '.$supModel->mfg_upc.'<br/>';
+			echo 'Sup SKU: '.$supModel->sup_sku.'<br/>';
+			echo 'Sup Item Name: '.$supModel->sup_sku_name.'<br/>';
+		echo '-----------------------'.'<br/><br/>';
+		echo 'Will First Row imported Success? ';
+		if($supModel->validate())
+			echo 'Yes';
+		else
+			echo "No";
+		
+		echo '<br/><br/><br/>';
+		echo CHtml::link('Continue Seeding',array('confirmCustomSync','ubs_sup_id'=>$ubs_sup_id,'vims_sup_id'=>$vims_sup_id,'column_1'=>$column_1, 'column_2'=>$column_2, 'column_3'=>$column_3));
+	}
+	
+	public function actionConfirmCustomSync($ubs_sup_id, $vims_sup_id, $column_1, $column_2, $column_3)
+	{
+		set_time_limit(0);
+
+		ini_set("memory_limit",-1);
+		
+		session_write_close();
+		
+		$columns = array(
+			'SupplierName',
+			'SupplierID',
+			'SKU',
+			'MPN',
+			'upc',
+			'SupplierSKU',
+			'ItemName',
+		);
+		@$vsku = array_filter(array(
+			$columns[$column_1-1],$columns[$column_2-1],$columns[$column_3-1]
+		));
+		$seedModel = UbsSupplierItemSeed::model()->findByAttributes(array('SupplierID'=>$ubs_sup_id));
+		if($seedModel == null){
+			echo 'Seed Supplier Not Found.';
+			exit;
+		}
+		$targetModel = Supplier::model()->findByPk($vims_sup_id);
+		if($seedModel == null){
+			echo 'Seed Supplier Not Found.';
+			exit;
+		}
+		echo 'Seed Supplier: '. $seedModel->SupplierName.' ('.$seedModel->SupplierID.') '.'<br/><br/>';
+		echo 'Target Supplier: '. $targetModel->name.' ('.$targetModel->id.') '.'<br/><br/>';
+		echo 'Target Supplier vSKU: '. implode($vsku, ' + ').'<br/><br/>';
+		echo 'Expect Import Items: '. UbsSupplierItemSeed::model()->countByAttributes(array('SupplierID'=>$ubs_sup_id)).'<br/><br/>';
+		
+		
+		
+		
+		
+		
+		$pageSize = 1000;
+		$criteria = new CDbCriteria;
+		$criteria->select = '1';
+		$newCount = 0;
+        $updateCount = 0;
+
+		$dataProvider=new CActiveDataProvider('UbsSupplierItemSeed', array(
+		    'criteria'=>array(
+		    	'condition'=>'SupplierID=:SupplierID',
+		    	'params'=>array(
+		    		':SupplierID'=>$seedModel->SupplierID,
+		    	),
+		    	'select'=>'1',
+		    ),
+		    'pagination'=>array(
+		        'pageSize'=>$pageSize,
+		    ),
+		));
+
+		$dataProvider->getData();
+		
+		
+		$pageCount = $dataProvider->pagination->pageCount;
+
+
+		for($i=0;$i<$pageCount;$i++){
+
+
+			$dataProvider_1=new CActiveDataProvider('UbsSupplierItemSeed', array(
+				'criteria'=>array(
+			    	'condition'=>'SupplierID=:SupplierID',
+			    	'params'=>array(
+			    		':SupplierID'=>$seedModel->SupplierID,
+			    	),
+			    ),
+			    'pagination'=>array(
+			    	'pageSize'=>$pageSize,
+			    	'currentPage'=>$i,
+			    ),
+			));
+
+			foreach($dataProvider_1->getData() as $id=>$data):
+				@$sup_vsku = 
+					(isset($vsku[0])?$data->{$vsku[0]}:''). 
+					(isset($vsku[1])?$data->{$vsku[1]}:''). 
+					(isset($vsku[2])?$data->{$vsku[2]}:'');
+				$model = SupInventory::model()->findByAttributes(array(
+					'sup_id'=>$targetModel->id,
+					'sup_vsku'=>$sup_vsku
+				));
+				if($model == null){
+					$inventory_model = new SupInventory;
+					$inventory_model->sup_vsku = $sup_vsku;
+					$inventory_model->supplier_name = $targetModel->name;
+					$inventory_model->ubs_sku = $data->$columns[2];
+					$inventory_model->mfg_sku = $data->$columns[3];
+					$inventory_model->mfg_upc = $data->$columns[4];
+					$inventory_model->sup_sku = $data->$columns[5];
+					$inventory_model->sup_sku_name = $data->$columns[6];
+					$inventory_model->item_status = 0;
+					if ($inventory_model->save(false)){
+                       echo $id.' - '.$inventory_model->sup_vsku.' - '.$inventory_model->id.' Created.<br/>';
+                       $newCount++;
+                    }else
+                    	var_dump($inventory_model->getErrors());
+				}else
+					$updateCount++;	                    
+			endforeach;
+
+              echo $pageCount*$pageSize.' done'.'<br/>';
+		}
+		echo "{$newCount} new Record Inserted and {$updateCount} record skipped. In ".Yii::getLogger()->getExecutionTime()."seconds";
+		
+		
+		
+	}
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
