@@ -173,12 +173,6 @@
 
 </script>
 
-<span id="match_391942">
-    <label for="match_391942_0" style="display:inline;">Y</label><input type="radio" name="match_391942" id="match_391942_0" value="1" tabindex="1" class="vsku-a888" > 
-    <label for="match_391942_1" style="display:inline;">N</label><input type="radio" name="match_391942" id="match_391942_1" value="0" tabindex="1" class="vsku-a888" > 
-    <label for="match_391942_2" style="display:inline;">U</label><input type="radio" name="match_391942" checked="checked" id="match_391942_2" value="2" tabindex="1" class="vsku-a888">
-</span>
-
 <?php
 $this->breadcrumbs = array(
     'Sup New Items' => array('index'),
@@ -322,8 +316,7 @@ $this->widget('bootstrap.widgets.TbButton', array(
 </div>
 <div style="margin:10px 0;"></div>-->
 
-
-<table id="dg" class="easyui-datagrid" title="Manage Supplier New Items" style="width:auto;height:250px"
+<table id="dg" class="easyui-datagrid" title="Manage Supplier New Items" style="width:auto;height:350px"
         data-options="rownumbers:true,singleSelect:true,method:'get'">
     <thead data-options="frozen:true">
         <tr>
