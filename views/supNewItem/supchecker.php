@@ -338,7 +338,7 @@ $columns = array(
         'htmlOptions' => array(
             'style' => 'width:30px;',
         ),
-        'value' => '(!empty($data->ubsinventory) ? ($data->ubsinventory->price-$data->sup_price):\'\')',
+        'value' => '(!empty($data->ubsinventory) ? (number_format($data->ubsinventory->price-$data->sup_price, 2)):\'\')',
     ),
     array(
         'header' => 'UBS<br/>SKU',
@@ -351,10 +351,10 @@ $columns = array(
     array(
         'header' => 'UBS Item Name',
         'type' => 'raw',
-        'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>18)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,18)."...</a>":$data->ubsinventory->sku_name) : ""',
-        //'value' => '$data->ubsinventory->sku_name',
+        'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>40)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,40)."...</a>":$data->ubsinventory->sku_name) : ""',
+        //'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->sku_name : ""',
         'headerHtmlOptions' => array(
-            'style' => 'width:200px;',
+            'style' => 'width:450px;',
         ),
     ),
     array(
@@ -369,14 +369,20 @@ $columns = array(
         'name' => 'mfg_name',
         'type' => 'raw',
         'headerHtmlOptions' => array(
-            'style' => 'width:200px;',
+            'style' => 'width:300px;',
         ),
-        'value'=>'(strlen($data->mfg_name)>20)?"<a href=\"#\" title=\"".$data->mfg_name."\" rel=\"tooltip\">".substr($data->mfg_name,0,20)."...</a>":$data->mfg_name',
-        //'value' => '$data->mfg_name',
+        //'value'=>'(strlen($data->mfg_name)>20)?"<a href=\"#\" title=\"".$data->mfg_name."\" rel=\"tooltip\">".substr($data->mfg_name,0,20)."...</a>":$data->mfg_name',
+        'value' => '$data->mfg_name',
     ),
     array(
         'header' => 'UBS<br/>Mfg<br/>Name',
         'name' => 'ubsinventory.mfg_title',
+        'type' => 'raw',
+        //'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_title) > 16 ? "<a href=\"#\" title=\"".$data->ubsinventory->mfg_title."\" rel=\"tooltip\">".substr($data->ubsinventory->mfg_title,0,16)."...</a>" : $data->ubsinventory->mfg_title) : ""',
+        'value' => '!empty($data->ubsinventory) ? $data->ubsinventory->mfg_title : ""',
+        'headerHtmlOptions' => array(
+            'style' => 'width:200px;',
+        ),
     ),
     array(
         'header' => 'Supp<br/>MPN',
@@ -389,7 +395,7 @@ $columns = array(
         'header' => 'UBS<br/>MPN',
         'name' => 'ubsinventory.mfg_name',
         'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->mfg_name : ""',
-		'headerHtmlOptions' => array(
+        'headerHtmlOptions' => array(
             'style' => 'width:80px;',
         ),
     ),
@@ -402,6 +408,13 @@ $columns = array(
         'header' => 'UBS<br/>UPC',
         'name' => 'ubsinventory.upc',
         'value' => 'isset($data->ubsinventory->upc)?$data->ubsinventory->upc:""',
+    ),
+    array(
+        'header' => 'Item<br/>Qty',
+        'value' => '',
+        'headerHtmlOptions' => array(
+            'style' => 'width:80px;',
+        ),
     ),
     array(
         'header' => 'Will<br/>Auto<br/>Accept?',
@@ -448,6 +461,9 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
     'headerOffset' => 61,
     'rowCssClassExpression' => '$data->match_by?($data->match?"matched":"mismatched"):""',
     'columns' => $columns,
+    'htmlOptions' => array(
+        'style' => 'width: 1800px'
+    )
 ));
 ?>
 
