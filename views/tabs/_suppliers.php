@@ -151,6 +151,13 @@ if ($supplierOnly) {
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
     array(
+        'header' => 'Manage<br/>New Items<br/>("Checkers 3")',
+        'type' => 'raw',
+        'value' => 'CHtml::link(\'Checkers3\',array(\'/supNewItem/supChecker3\',\'supid\'=>$data->supplier->id),array())',
+        'htmlOptions' => array('style' => 'width: 80px'),
+        'headerHtmlOptions' => array('style' => 'width: 80px'),
+    ),
+    array(
       'header' => 'Items<br/>InStock',
       'value' => 'SupInventory::model()->countByAttributes(array("sup_id"=>$data->supplier_id,"sup_status"=>1))',
     ),

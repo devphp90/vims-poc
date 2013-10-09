@@ -45,7 +45,7 @@ class SupNewItemController extends Controller
 
                 'actions' => array('update', 'admin', 'delete', 'deleteNoMatch', 'deleteAllNoMatch', 'deleteAllMisMatch', 'deleteAll', 'deleteAllMarkedAsMisMatch',
                     'import', 'newitemlink', 'updateMatch', 'noMatch', 'misMatch', 'importedItem', 'updateStatus', 'noMatchExport',
-                    'importpage', 'supchecker', 'supchecker2', 'getData', 'groupsupchecker', 'calculate', 'updatePageY', 'index', 'view', 'updatePageN'),
+                    'importpage', 'supchecker', 'supchecker2', 'supchecker3', 'getData', 'getData3', 'groupsupchecker', 'calculate', 'updatePageY', 'index', 'view', 'updatePageN'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -174,6 +174,59 @@ class SupNewItemController extends Controller
             'supid' => $supplierId,
             'supplier' => Supplier::model()->findByPk($supplierId),
         ));
+    }
+    
+    public function actionSupChecker3()
+    {
+        $request = Yii::app()->request;
+        $supplierId = $request->getQuery('supid');
+        
+        $this->render('supchecker3', array(
+            'supid' => $supplierId,
+            'supplier' => Supplier::model()->findByPk($supplierId),
+        ));
+    }
+    
+    public function actionGetData3($supplierId)
+    {
+        $model = new SupItemsNewManage('search');
+        $model->unsetAttributes();  // clear any default values
+        $model->sup_id = $supplierId;
+        $results = $model->searchSupchecker3();
+        $data = '';
+        
+        $count = count($results[0]->data);
+        if ($count > 0) {
+            $data .= '{"total":' . $results[1] . ',"rows":[';
+            foreach ($results[0]->data as $key => $result) {
+                $matchBy = $result->getMatchByStatus();
+                $match = "";
+                $diff = !is_null($result->ubsinventory) ? ($result->ubsinventory->price == 0 ? "n/a" : sprintf("%.2f", (abs($result->ubsinventory->price - $result->sup_price) / $result->ubsinventory->price) * 100) . "%" ) : "";
+                $ubsItemCost = !is_null($result->ubsinventory) ? $result->ubsinventory->price : "";
+                $suppItemPrice = $result->sup_price;
+                $priceDiff = !empty($result->ubsinventory) ? ($result->ubsinventory->price - $result->sup_price) : "";
+
+                $ubsSku = !is_null($result->ubsinventory) ? $result->ubsinventory->sku : "";
+                $ubsItemName = !is_null($result->ubsinventory) ? ((strlen($result->ubsinventory->sku_name) > 50) ? "<a href='#' rel='tooltip' title='" . $result->ubsinventory->sku_name . "'>" . substr($result->ubsinventory->sku_name, 0, 50) . "...</a>" : $result->ubsinventory->sku_name) : "";
+                $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='". $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
+                $supp_mfg_name = (strlen($result->mfg_name) > 20) ? "<a href='#' title='" . $result->mfg_name . "' rel='tooltip'>" . substr($result->mfg_name, 0, 20) . "...</a>" : $result->mfg_name;
+                $ubs_mfg_name = !empty($result->ubsinventory) ? $result->ubsinventory->mfg_title : '';
+                $supp_mpn = $result->mfg_sku;
+                $ubs_mpn = !is_null($result->ubsinventory) ? $result->ubsinventory->mfg_name : "";
+                $supp_upc = $result->upc;
+                $ubs_upc = isset($result->ubsinventory->upc) ? $result->ubsinventory->upc : "";
+                $will_auto_accept = ($result->importStatus != 'Will Import' ? CHtml::link("no", "#", array("rel" => "tooltip", "title" => $result->importStatus)) : "yes");
+                $info ="<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
+                $delete = "<a href='/index.php/supNewItem/delete/391942' title='Delete' class='delete'><img alt='Delete' src='/assets/3a624659/gridview/delete.png'></a>";
+
+                $data .= '{"matchby" : "'.$matchBy.'", "match" : "'. $match .'", "diff" : "'.$diff.'", "ubs_item_cost" : "'.$ubsItemCost.'", "supp_item_price" : "'.$suppItemPrice.'", "price_diff" : "'.$priceDiff.'",
+                    "ubs_sku" : "'.$ubsSku.'", "ubs_item_name" : "'.$ubsItemName.'", "mfg_part_name" : "'.$mfg_part_name.'", "supp_mfg_name" : "'.$supp_mfg_name.'", "ubs_mfg_name" : "'.$ubs_mfg_name.'", "supp_mpn" : "'.$supp_mpn.'",
+                    "ubs_mpn" : "'.$ubs_mpn.'", "supp_upc" : "'.$supp_upc.'", "ubs_upc" : "'.$ubs_upc.'", "will_auto_accept" : "'.$will_auto_accept.'", "info" : "'.$info.'", "delete" : "'.$delete.'"
+                }' . ($key == ($count - 1) ? '' : ',');
+            }
+            $data .= ']}';
+        }
+        echo $data;
     }
     
     public function actionGetData()

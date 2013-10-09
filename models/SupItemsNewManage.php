@@ -477,6 +477,97 @@ class SupItemsNewManage extends CActiveRecord
 
         return $dataProvider;
     }
+    
+    public function searchSupchecker3()
+    {
+        // Warning: Please modify the following code to remove attributes that
+        // should not be searched.
+
+        $criteria = new CDbCriteria;
+        $criteria->together = true;
+        $criteria->condition = 'item_status=0'; // and supplier.id=:sup_id';
+        $criteria->select = array(
+            '*',
+        );
+
+        if (!empty($this->mfg_part_name)) {
+            $this->checkSearchType($criteria, 't.mfg_part_name', str_replace('*', '%', $this->mfg_part_name));
+//            $criteria->addCondition('t.mfg_part_name like :mfg_part_name');
+//            $criteria->params[':mfg_part_name'] = str_replace('*', '%', $this->mfg_part_name);
+        }
+        //$criteria->join = 'left join ';
+        $criteria->compare('t.id', $this->id);
+        //$criteria->compare('import_id',$this->import_id);
+        $criteria->with = array('ubsinventory', 'import_routine');
+        if ($this->sup_id) {
+            $criteria->with = array_merge($criteria->with, array('supplier'));
+            $criteria->compare('supplier.id', $this->sup_id);
+        }
+        $criteria->compare('t.sup_vsku', $this->sup_vsku, true);
+        $criteria->compare('t.sup_sku', $this->sup_sku, true);
+        $criteria->compare('t.sup_sku_name', $this->sup_sku_name, true);
+        $criteria->compare('t.sup_description', $this->sup_description, true);
+
+        //$criteria->compare('t.mfg_sku', $this->mfg_sku, true);
+        $this->checkSearchType($criteria, 't.mfg_sku', $this->mfg_sku);
+
+        //$criteria->compare('t.upc', $this->upc, true);
+        $this->checkSearchType($criteria, 't.upc', $this->upc);
+
+        //$criteria->compare('t.mfg_name', $this->mfg_name, true);
+        $this->checkSearchType($criteria, 't.mfg_name', $this->mfg_name);
+
+//		$criteria->compare('t.mfg_part_name',$this->mfg_part_name,true);
+        $criteria->compare('`match`', $this->match);
+        $criteria->compare('`match_by`', $this->match_by);
+        //$criteria->compare('t.sup_price', $this->sup_price, true);
+        $this->checkSearchType($criteria, 't.sup_price', $this->sup_price);
+
+//		$criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price',$this->percent_diff);
+        if ($this->percent_diff == 'n/a') {
+//      $criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', 0);
+            $criteria->addCondition('abs(ubsinventory.price-t.sup_price)/ubsinventory.price IS NULL');
+        } else {
+            //$criteria->compare('abs(ubsinventory.price-t.sup_price)/ubsinventory.price', $this->percent_diff, true);
+            $this->checkSearchType($criteria, 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price', $this->percent_diff);
+        }
+
+        //$criteria->compare('(ubsinventory.price-t.sup_price)', $this->price_diff, true);
+        $this->checkSearchType($criteria, '(ubsinventory.price-t.sup_price)', $this->price_diff);
+
+        $count = self::model()->count($criteria);
+        
+        $dataProvider = new CActiveDataProvider($this, array(
+                    'criteria' => $criteria,
+                    'pagination' => array(
+                        'pageSize' => Yii::app()->user->getState('pageSize', 100),
+                        'currentPage' => (isset($_POST['page']) ? ($_POST['page'] - 1) : 0),
+                    ),
+                    'sort' => array(
+                        'attributes' => array(
+                            'sup_id' => array(
+                                'asc' => 'supplier.name',
+                                'desc' => 'supplier.name DESC',
+                            ),
+                            'ubs_sku' => array(
+                                'asc' => 'ubsinventory.sku',
+                                'desc' => 'ubsinventory.sku DESC',
+                            ),
+                            'price_diff' => array(
+                                'asc' => '(ubsinventory.price-t.sup_price)',
+                                'desc' => '(ubsinventory.price-t.sup_price) desc',
+                            ),
+                            'percent_diff' => array(
+                                'asc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price',
+                                'desc' => 'abs(ubsinventory.price-t.sup_price)/ubsinventory.price desc',
+                            ),
+                        ),
+                    ),
+                ));
+
+
+        return array($dataProvider, $count);
+    }
 
     protected function checkSearchType($criteria, $field, $value)
     {
