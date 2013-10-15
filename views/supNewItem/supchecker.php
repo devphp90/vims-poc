@@ -431,7 +431,13 @@ $columns = array(
     ),
     array(
         'header' => 'Item<br/>Qty',
-        'value' => '',
+        'name'=>'qty_total',
+        'filter' => array(
+            '=0',
+            '<0',
+            '>0',
+            '<>0',
+        ),
         'headerHtmlOptions' => array(
             'style' => 'width:80px;',
         ),

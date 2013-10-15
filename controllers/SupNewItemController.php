@@ -219,7 +219,7 @@ class SupNewItemController extends Controller
                 $info ="<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
                 $delete = "<a href='/index.php/supNewItem/delete/391942' title='Delete' class='delete'><img alt='Delete' src='/assets/3a624659/gridview/delete.png'></a>";
 
-                $data .= '{"matchby" : "'.$matchBy.'", "match" : "'. $match .'", "diff" : "'.$diff.'", "ubs_item_cost" : "'.$ubsItemCost.'", "supp_item_price" : "'.$suppItemPrice.'", "price_diff" : "'.$priceDiff.'",
+                $data .= '{"id": '.$result->id.',"matchby" : "'.$matchBy.'", "match" : "'. $match .'", "diff" : "'.$diff.'", "ubs_item_cost" : "'.$ubsItemCost.'", "supp_item_price" : "'.$suppItemPrice.'", "price_diff" : "'.$priceDiff.'",
                     "ubs_sku" : "'.$ubsSku.'", "ubs_item_name" : "'.$ubsItemName.'", "mfg_part_name" : "'.$mfg_part_name.'", "supp_mfg_name" : "'.$supp_mfg_name.'", "ubs_mfg_name" : "'.$ubs_mfg_name.'", "supp_mpn" : "'.$supp_mpn.'",
                     "ubs_mpn" : "'.$ubs_mpn.'", "supp_upc" : "'.$supp_upc.'", "ubs_upc" : "'.$ubs_upc.'", "will_auto_accept" : "'.$will_auto_accept.'", "info" : "'.$info.'", "delete" : "'.$delete.'"
                 }' . ($key == ($count - 1) ? '' : ',');

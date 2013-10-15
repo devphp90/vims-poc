@@ -41,7 +41,12 @@ class SupItemsNewManage extends CActiveRecord
     const MATCH_STATUS_NO = 0;
     const MATCH_STATUS_MISMATCH = 3;
     const MATCH_STATUS_UNDECIDED = 2;
-
+    
+	public function getItemQty()
+	{
+		
+	}
+	
     /**
      * Returns the static model of the specified AR class.
      * @return SupNewItem4 the static model class
@@ -76,14 +81,14 @@ class SupItemsNewManage extends CActiveRecord
         return array(
             array('import_id,item_status, match_by,match_ubs_id', 'numerical', 'integerOnly' => true),
             array('sup_price', 'numerical'),
-            array('mfg_sku,sup_vsku,upc,mfg_name,mfg_part_name,sup_sku,sup_sku_name,sup_description', 'safe'),
+            array('mfg_sku,sup_vsku,upc,mfg_name,mfg_part_name,sup_sku,sup_sku_name,sup_description, qty_total', 'safe'),
             array('create_time', 'default', 'setOnEmpty' => false, 'value' => date("Y-m-d H:i:s"), 'on' => 'insert'),
             array('create_by', 'default', 'setOnEmpty' => false, 'value' => Yii::app()->user->id, 'on' => 'insert'),
             array('update_by', 'default', 'setOnEmpty' => false, 'value' => Yii::app()->user->id, 'on' => 'update'),
             array('update_time', 'default', 'setOnEmpty' => false, 'value' => date("Y-m-d H:i:s"), 'on' => 'update'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id,match_by, sup_id,sup_vsku, import_id,match_by, data,mfg_sku,upc,mfg_name,mfg_part_name,sup_sku,sup_sku_name,sup_description,match, sup_price, ubs_sku,price_diff, percent_diff', 'safe', 'on' => 'search'),
+            array('id,match_by, qty_total, sup_id,sup_vsku, import_id,match_by, data,mfg_sku,upc,mfg_name,mfg_part_name,sup_sku,sup_sku_name,sup_description,match, sup_price, ubs_sku,price_diff, percent_diff', 'safe', 'on' => 'search'),
         );
     }
 
@@ -413,7 +418,11 @@ class SupItemsNewManage extends CActiveRecord
         $criteria->with = array('ubsinventory', 'import_routine');
         if ($this->sup_id) {
             $criteria->with = array_merge($criteria->with, array('supplier'));
-            $criteria->compare('supplier.id', $this->sup_id);
+            
+            
+            //$criteria->compare('supplier.id', $this->sup_id);
+            $criteria->compare('t.import_id', Supplier::model()->with('importRoutine')->findByPk($this->sup_id)->importRoutine->id);
+            
         }
         $criteria->compare('t.sup_vsku', $this->sup_vsku, true);
         $criteria->compare('t.sup_sku', $this->sup_sku, true);
@@ -422,6 +431,8 @@ class SupItemsNewManage extends CActiveRecord
 
         //$criteria->compare('t.mfg_sku', $this->mfg_sku, true);
         $this->checkSearchType($criteria, 't.mfg_sku', $this->mfg_sku);
+        
+        $this->checkSearchNumberic($criteria, 't.qty_total', $this->qty_total);
 
         //$criteria->compare('t.upc', $this->upc, true);
         $this->checkSearchType($criteria, 't.upc', $this->upc);
@@ -567,6 +578,27 @@ class SupItemsNewManage extends CActiveRecord
 
 
         return array($dataProvider, $count);
+    }
+    
+    protected function checkSearchNumberic($criteria, $field, $value)
+    {
+        switch ($value) {
+            case 0:
+                $criteria->compare($field, '0', true);
+                break;
+            case 1:
+                $criteria->compare($field, '> 0', true);
+                break;
+            case 2:
+                $criteria->compare($field, '< 0', true);
+                break;
+            case 3:
+                $criteria->compare($field, '<> 0', true);
+                break;
+            default:
+                $criteria->compare($field, $value, true);
+                break;
+        }
     }
 
     protected function checkSearchType($criteria, $field, $value)
