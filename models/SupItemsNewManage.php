@@ -41,7 +41,8 @@ class SupItemsNewManage extends CActiveRecord
     const MATCH_STATUS_NO = 0;
     const MATCH_STATUS_MISMATCH = 3;
     const MATCH_STATUS_UNDECIDED = 2;
-    
+
+	
 	public function getItemQty()
 	{
 		
@@ -421,7 +422,7 @@ class SupItemsNewManage extends CActiveRecord
             
             
             //$criteria->compare('supplier.id', $this->sup_id);
-            $criteria->compare('t.import_id', Supplier::model()->with('importRoutine')->findByPk($this->sup_id)->importRoutine->id);
+            $criteria->compare('t.import_id', Tabs::model()->findByAttributes(array('supplier_id'=>$this->sup_id))->importRoutine->id);
             
         }
         $criteria->compare('t.sup_vsku', $this->sup_vsku, true);
@@ -582,22 +583,21 @@ class SupItemsNewManage extends CActiveRecord
     
     protected function checkSearchNumberic($criteria, $field, $value)
     {
-        switch ($value) {
-            case 0:
-                $criteria->compare($field, '0', true);
-                break;
-            case 1:
-                $criteria->compare($field, '> 0', true);
-                break;
-            case 2:
-                $criteria->compare($field, '< 0', true);
-                break;
-            case 3:
-                $criteria->compare($field, '<> 0', true);
-                break;
-            default:
-                $criteria->compare($field, $value, true);
-                break;
+        if (!is_null($value)) {
+            switch ($value) {
+                case '1':
+                    $criteria->condition .= " AND $field = 0";
+                    break;
+                case '2':
+                    $criteria->condition .= " AND $field > 0";
+                    break;
+                case '3':
+                    $criteria->condition .= " AND $field < 0";
+                    break;
+                case '4':
+                    $criteria->condition .= " AND $field != 0";
+                    break;
+            }
         }
     }
 
