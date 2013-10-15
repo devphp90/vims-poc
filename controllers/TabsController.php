@@ -28,7 +28,7 @@ class TabsController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'freshUpdate', 'update', 'admin', 'delete', 'warehouseadd', 'updatewarehouse', 'setup', 'deletewarehouse', 'supitemstatus', 'dashboard', 'index', 'view'),
+                'actions' => array('create','supplierSetupStatus', 'supplierNotScheduled', 'freshUpdate', 'update', 'admin', 'delete', 'warehouseadd', 'updatewarehouse', 'setup', 'deletewarehouse', 'supitemstatus', 'dashboard', 'index', 'view'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -36,6 +36,30 @@ class TabsController extends Controller
             ),
         );
     }
+	
+	public function actionSupplierNotScheduled()
+	{
+		$model=new Supplier('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Supplier']))
+			$model->attributes=$_GET['Supplier'];
+
+		$this->render('supplierNotScheduled',array(
+			'model'=>$model,
+		));
+	}
+	
+	public function actionSupplierSetupStatus()
+	{
+		$model=new Supplier('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Supplier']))
+			$model->attributes=$_GET['Supplier'];
+
+		$this->render('supplierSetupStatus',array(
+			'model'=>$model,
+		));
+	}
 
     public function actionUpdatewarehouse($ware_id, $zip_code, $name, $state)
     {
@@ -241,13 +265,31 @@ class TabsController extends Controller
 
         if (isset($_POST['Supplier'])) {
             //$model->attributes=$_POST['Tabs'];
+			$oldSetupStatus = $model->supplier->setup_status;
             $model->supplier->attributes = $_POST['Supplier'];
             $model->importRoutine->scenario = 'sup1';
             $model->importRoutine->attributes = $_POST['ImportRoutine'];
             $model->importRoutine2->attributes = $_POST['ImportRoutine2'];
-
-
-            if ($model->supplier->save()) {
+			$hasError = false;
+			
+			if($oldSetupStatus == 'I' && $_POST['Supplier']['setup_status'] == 'C') {
+				$reason = "";
+				if(empty($model->supplier->user_ran_iu) || $model->supplier->user_ran_iu == '0000-00-00 00:00:00') {
+					$hasError = true;
+					$reason = "I/U must be run.";
+					
+				} elseif(empty($model->importRoutine->frequency)) {
+					$hasError = true;
+					$reason = "Frequency must not empty.";
+				}
+				
+				if($hasError) {
+					$model->supplier->addError('setup_status', "Can't change Setup Status to complete. {$reason}");
+					$model->supplier->setup_status = 'I';
+				}
+			}
+			
+            if ( !$hasError && $model->supplier->save()) {
                 $model->importRoutine->supplier_name = $model->supplier->name;
                 $model->importRoutine2->supplier_name = $model->supplier->name;
                 if ($model->importRoutine->save() && $model->importRoutine2->save() && $model->save(false)) {
@@ -256,7 +298,7 @@ class TabsController extends Controller
 //                    var_dump($model->importRoutine->attributes); die();
 
                     Yii::app()->user->setFlash('success', "Successfully updated.");
-                    $this->redirect(array('admin'));
+                   // $this->redirect(array('admin'));
                 } else {
 //                    var_dump($model->errors);
  //                   var_dump($model->importRoutine->errors);

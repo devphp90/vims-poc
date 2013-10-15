@@ -13,6 +13,27 @@
         background-color: #dff0d8
     }
     .mismatched {background-color: #FCF2F2;}
+    
+    #content #yw6 {
+        width: 120%;
+    }
+    
+    .grid-view .summary {
+        float: right;
+        margin-bottom: 5px;
+        position: absolute;
+        right: 50px;
+        text-align: right;
+        top: 150px;
+        width: 249px;
+    }
+    
+    #page-size {
+        width: 100%;
+        position: absolute;
+        top: 90px;
+        right: 100px;
+    }
 </style>
 
 <script>
@@ -259,10 +280,6 @@ $this->widget('bootstrap.widgets.TbButton', array(
     <?php endif; ?>
 
 
-
-
-
-
 <div class="search-form" style="display:none">
 
 <?php
@@ -274,7 +291,7 @@ $this->renderPartial('_search', array(
 </div><!-- search-form -->
 
 
-<div class="row" align="right">
+<div id="page-size" class="row" align="right">
 <?php
 $this->widget('application.extensions.PageSize.PageSize', array(
     'mGridId' => 'sup-new-item-grid',
@@ -288,9 +305,6 @@ $columns = array(
     array(
         'header' => 'Match<br/>By',
         'name' => 'match_by',
-        'headerHtmlOptions' => array(
-            'style' => 'width:23px; ',
-        ),
         'value' => '$data->getMatchByStatus()',
         'filter' => array(
             SupItemsNewManage::MATCH_VSKU => 'vSKU',
@@ -300,14 +314,17 @@ $columns = array(
             SupItemsNewManage::MATCH_UPC => 'UPC',
             SupItemsNewManage::MATCH_MPN => 'MPN'
         ),
+        'headerHtmlOptions' => array(
+            'style' => 'width:23px; ',
+        ),
     ),
     array(
-        'header' => 'Match<br/>Yes/No/Un',
+        'header' => 'Match<br/>Y/N/U <a href="#" data-toggle="modal" data-target="#match-help" style="display: inline">?</a>',
         'name' => 'match',
         'type' => 'raw',
         'value' => 'CHtml::radioButtonList("match_".$data->id,$data->match, array(1=>"Y",0=>"N",2=>"U"),array(":id"=>$data->id,"class"=>"vsku-$data->sup_vsku","tabindex"=>Yii::app()->controller->tempCounter++,"labelOptions"=>array("style"=>"display:inline;"),"separator"=>" ","template"=>"{label}{input}"))',
         'htmlOptions' => array(
-            'style' => 'width:100px;',
+            'style' => 'width:120px;',
         ),
     ),
     array(
@@ -322,21 +339,21 @@ $columns = array(
         'header' => 'UBS<br/>Item<br/>Cost',
         'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->price : ""',
         'htmlOptions' => array(
-            'style' => 'width:35px;',
+            'style' => 'width:35px; text-align:right',
         ),
     ),
     array(
         'header' => 'Supp<br/>Item<br/>Price',
         'name' => 'sup_price',
         'htmlOptions' => array(
-            'style' => 'width:30px;',
+            'style' => 'width:30px; text-align:right',
         ),
     ),
     array(
         'header' => 'Price<br/>Diff',
         'name' => 'price_diff',
         'htmlOptions' => array(
-            'style' => 'width:30px;',
+            'style' => 'width:30px; text-align:right',
         ),
         'value' => '(!empty($data->ubsinventory) ? (number_format($data->ubsinventory->price-$data->sup_price, 2)):\'\')',
     ),
@@ -351,37 +368,40 @@ $columns = array(
     array(
         'header' => 'UBS Item Name',
         'type' => 'raw',
-        'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>40)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,40)."...</a>":$data->ubsinventory->sku_name) : ""',
-        //'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->sku_name : ""',
+        //'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>40)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,40)."...</a>":$data->ubsinventory->sku_name) : ""',
+        'value' => '!is_null($data->ubsinventory) ? (strlen($data->ubsinventory->sku_name)>100 ? substr($data->ubsinventory->sku_name,0,100) . "..." : $data->ubsinventory->sku_name) : ""',
         'headerHtmlOptions' => array(
-            'style' => 'width:450px;',
+            'style' => 'width:1200px;',
         ),
     ),
     array(
         'header' => 'Mfg<br/>Part<br/>Name',
         'name' => 'mfg_part_name',
         'type' => 'raw',
-        'value'=>'(strlen($data->mfg_part_name)>10)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->mfg_part_name."\">".substr($data->mfg_part_name,0,10)."...</a>":$data->mfg_part_name',
-        //'value' => '$data->mfg_part_name',
+        //'value'=>'(strlen($data->mfg_part_name)>10)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->mfg_part_name."\">".substr($data->mfg_part_name,0,10)."...</a>":$data->mfg_part_name',
+        'value' => 'strlen($data->mfg_part_name)>40 ? substr($data->mfg_part_name,0,40)."..." : $data->mfg_part_name',
+        'headerHtmlOptions' => array(
+            'style' => 'width:700px;',
+        ),
     ),
     array(
         'header' => 'Supp<br/>Mfg<br/>Name',
         'name' => 'mfg_name',
         'type' => 'raw',
         'headerHtmlOptions' => array(
-            'style' => 'width:300px;',
+            'style' => 'width:700px;',
         ),
         //'value'=>'(strlen($data->mfg_name)>20)?"<a href=\"#\" title=\"".$data->mfg_name."\" rel=\"tooltip\">".substr($data->mfg_name,0,20)."...</a>":$data->mfg_name',
-        'value' => '$data->mfg_name',
+        'value' => 'strlen($data->mfg_name)>50 ? substr($data->mfg_name,0,50) . "..." : $data->mfg_name',
     ),
     array(
         'header' => 'UBS<br/>Mfg<br/>Name',
         'name' => 'ubsinventory.mfg_title',
         'type' => 'raw',
         //'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_title) > 16 ? "<a href=\"#\" title=\"".$data->ubsinventory->mfg_title."\" rel=\"tooltip\">".substr($data->ubsinventory->mfg_title,0,16)."...</a>" : $data->ubsinventory->mfg_title) : ""',
-        'value' => '!empty($data->ubsinventory) ? $data->ubsinventory->mfg_title : ""',
+        'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_title) > 20 ? substr($data->ubsinventory->mfg_title,0,20)."..." : $data->ubsinventory->mfg_title) : ""',
         'headerHtmlOptions' => array(
-            'style' => 'width:200px;',
+            'style' => 'width:350px;',
         ),
     ),
     array(
@@ -394,9 +414,9 @@ $columns = array(
     array(
         'header' => 'UBS<br/>MPN',
         'name' => 'ubsinventory.mfg_name',
-        'value' => '!is_null($data->ubsinventory) ? $data->ubsinventory->mfg_name : ""',
+        'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_name) > 20 ? substr($data->ubsinventory->mfg_name,0,20)."..." : $data->ubsinventory->mfg_name) : ""',
         'headerHtmlOptions' => array(
-            'style' => 'width:80px;',
+            'style' => 'width:350px;',
         ),
     ),
     array(
@@ -462,7 +482,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
     'rowCssClassExpression' => '$data->match_by?($data->match?"matched":"mismatched"):""',
     'columns' => $columns,
     'htmlOptions' => array(
-        'style' => 'width: 1800px'
+        'style' => 'width: 2950px'
     )
 ));
 ?>
@@ -499,10 +519,66 @@ $this->widget('bootstrap.widgets.TbButton', array(
 </div>
 <?php $this->endWidget(); ?>
 
+<?php
+$this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'match-help')); ?>
+
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+    <h4>Help</h4>
+    </div>
+
+	<div class="modal-body">
+            Hello VIMS User: <?php echo Yii::app()->user->name ?> <br/>
+            Please carefully decide if each row is a match or not. <br/>
+            Also, be careful when clicking  the radio buttons, Y/N/U. <br/>
+            Yes, No,  or Undecided. <br/>
+            Rows with green backgrounds are proposed matches for you to review based upon the criteria in the Match By column.
+	</div>
+
+	<div class="modal-footer">
+		<?php $this->widget('bootstrap.widgets.TbButton', array(
+		'label'=>'Close',
+		'type'=>'primary',
+		'url'=>'#',
+		'htmlOptions'=>array('data-dismiss'=>'modal'),
+	)); ?>
+	</div>
+<?php $this->endWidget(); ?>
+
+<?php
+$this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'first-pop-up')); ?>
+
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+    <h4>Help</h4>
+    </div>
+
+
+	<div class="modal-body">
+            Hello VIMS User: <?php echo Yii::app()->user->name ?> <br/>
+            Please carefully decide if each row is a match or not. <br/>
+            Also, be careful when clicking  the radio buttons, Y/N/U. <br/>
+            Yes, No,  or Undecided. <br/>
+            Rows with green backgrounds are proposed matches for you to review based upon the criteria in the Match By column.
+	</div>
+
+	<div class="modal-footer">
+		<?php $this->widget('bootstrap.widgets.TbButton', array(
+		'label'=>'Close',
+		'type'=>'primary',
+		'url'=>'#',
+		'htmlOptions'=>array('data-dismiss'=>'modal'),
+	)); ?>
+	</div>
+<?php $this->endWidget(); ?>
+
 <script src="<?php echo Yii::app()->request->baseUrl ?>/js/colResizable-1.3.min.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function(){
         //$("table").colResizable({headerOnly: true});
         $("table.items").removeClass("CRZ");
+        
+        if (<?php echo (!isset($_GET['SupItemsNewManage']) ? 1 : 0)?>) 
+            $("#first-pop-up").modal('show');
     });
 </script>
