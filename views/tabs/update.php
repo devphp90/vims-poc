@@ -59,8 +59,22 @@ $this->menu=array(
     }
     var interval = setInterval(sendCode, 5000);
 
+	$('li a[data-toggle]').click(function () { 
+	$('#tabindex').val($(this).attr('href'));
+});
+<?php 
+if(isset($_REQUEST['tabindex'])) {
+?>
+$('a[href="<?php echo $_REQUEST['tabindex'] ?>"]').tab('show');
+<?php
+}
+?>
+	
 <?php if($model->importRoutine->hasErrors()) { ?>
+
     $('a[href="#tabs_5"]').tab('show');
     $('.help-inline.error').hide();
     <?php } ?>
+	
+	
 </script>

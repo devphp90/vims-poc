@@ -9,7 +9,7 @@
 	'type'=>'horizontal',
 
 )); ?>
-
+<input id="tabindex" name="tabindex" type="hidden" />
 	<?php echo $form->errorSummary($supplierModel); ?>
 
 
@@ -214,21 +214,21 @@
 
     */
 
-    array(
-
-      'id'=>'tabs_10',
-
-      'label'=>'User OverRide<br/>(wireframe)',
-
-      'content'=>$this->renderPartial('tabs/_override',compact('model','form'),1),
-
-    ),
+   // array(
+//
+  //    'id'=>'tabs_10',
+//
+  //    'label'=>'User OverRide<br/>(wireframe)',
+//
+  //    'content'=>$this->renderPartial('tabs/_override',compact('model','form'),1),
+//
+  //  ),
 
     array(
 
       'id'=>'tabs_14',
 
-      'label'=>'Email Supplier',
+      'label'=>'Email HTML <br/> Table Supplier',
 
       'content'=>$this->renderPartial('tabs/_emailsupplier',compact('supplierModel','model','form'),1),
 
@@ -238,7 +238,7 @@
 
       'id'=>'tabs_15',
 
-      'label'=>'Nav Steps',
+      'label'=>'Nav Steps <br/> Supplier',
 
       'content'=>$this->renderPartial('tabs/_navSteps',  compact('navsup_model', 'form', 'model'),1),
 

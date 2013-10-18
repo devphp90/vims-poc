@@ -150,6 +150,7 @@ class SupNewItemController extends Controller
         $model = new SupItemsNewManage('search');
 
         $model->unsetAttributes();  // clear any default values
+        $model->qty_total = 4;
 
         if (isset($_GET['SupItemsNewManage']))
             $model->attributes = $_GET['SupItemsNewManage'];
@@ -454,7 +455,7 @@ class SupNewItemController extends Controller
         if ($supplierId)
             $model->sup_id = $supplierId;
 
-        $this->render('nomatchitem', array(
+        $this->render('//dashboard/nomatchitem', array(
             'model' => $model,
             'supplier' => Supplier::model()->findByPk($supplierId),
         ));

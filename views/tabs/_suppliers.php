@@ -144,9 +144,9 @@ if ($supplierOnly) {
       'headerHtmlOptions' => array('style' => 'width: 7%'),
     ),
     array(
-      'header' => 'Manage<br/>New Items<br/>("Checkers 2")',
+      'header' => 'Dup Items',
       'type' => 'raw',
-      'value' => 'CHtml::link(\'Checkers2\',array(\'/supNewItem/supChecker2\',\'supid\'=>$data->supplier->id),array())',
+      'value' => 'CHtml::link(\'Dup Items\',array(\'/suppVsheetDup/admin\',\'supid\'=>$data->supplier->id),array())',
       'htmlOptions' => array('style' => 'width: 80px'),
       'headerHtmlOptions' => array('style' => 'width: 80px'),
     ),
@@ -172,6 +172,11 @@ if ($supplierOnly) {
     ),
     array(
       'name' => 'id',
+      'htmlOptions' => array('style' => 'width: 50px'),
+      'headerHtmlOptions' => array('style' => 'width: 50px'),
+    ),
+    array(
+      'name' => 'supplier_id',
       'htmlOptions' => array('style' => 'width: 50px'),
       'headerHtmlOptions' => array('style' => 'width: 50px'),
     ),

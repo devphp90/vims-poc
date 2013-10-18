@@ -44,7 +44,7 @@ class TabsController extends Controller
 		if(isset($_GET['Supplier']))
 			$model->attributes=$_GET['Supplier'];
 
-		$this->render('supplierNotScheduled',array(
+		$this->render('//dashboard/supplierNotScheduled',array(
 			'model'=>$model,
 		));
 	}
@@ -56,7 +56,7 @@ class TabsController extends Controller
 		if(isset($_GET['Supplier']))
 			$model->attributes=$_GET['Supplier'];
 
-		$this->render('supplierSetupStatus',array(
+		$this->render('//dashboard/supplierSetupStatus',array(
 			'model'=>$model,
 		));
 	}
@@ -376,7 +376,7 @@ class TabsController extends Controller
         if (Yii::app()->request->isAjaxRequest)
             $this->renderPartial('_suppliers', array('model' => $model), false, true);
         else
-            $this->render('admin', array(
+            $this->render('//dashboard/tabs_admin', array(
                 'model' => $model,
                 'supplierOnly' => $type == 'dashboard' ? true : false,
             ));
@@ -392,7 +392,7 @@ class TabsController extends Controller
         if (isset($_GET['Tabs']))
             $model->attributes = $_GET['Tabs'];
 
-        $this->render('dashboard', array(
+        $this->render('//dashboard/tabs_dashboard', array(
             'model' => $model,
         ));
     }
@@ -407,7 +407,7 @@ class TabsController extends Controller
         if (isset($_GET['Tabs']))
             $model->attributes = $_GET['Tabs'];
 
-        $this->render('supitemstatus', array(
+        $this->render('//dashboard/supitemstatus', array(
             'model' => $model,
         ));
     }

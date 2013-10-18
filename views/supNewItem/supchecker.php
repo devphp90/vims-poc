@@ -18,7 +18,7 @@
         width: 120%;
     }
     
-    .grid-view .summary {
+    #sup-new-item-grid .summary {
         float: right;
         margin-bottom: 5px;
         position: absolute;
@@ -152,10 +152,10 @@
             var value = $(this).attr("value");
 
             var match = $(this).parent().parent().parent().find('td').html().replace('&nbsp;', '');
-            if(match != '' && $(this).attr("value") == 0)
-                if(!confirm('Are you sure?  This item matches.')) return false;
-            if(match == '' && $(this).attr("value") == 1)
-                if(!confirm('Are you sure?  This item does NOT match.')) return false;
+//            if(match != '' && $(this).attr("value") == 0)
+//                if(!confirm('Are you sure?  This item matches.')) return false;
+//            if(match == '' && $(this).attr("value") == 1)
+//                if(!confirm('Are you sure?  This item does NOT match.')) return false;
             //if($(this).attr("value") == 0)
             //
             // check for the rest
@@ -249,7 +249,7 @@ $('.search-form form').submit(function(){
 
 
 <div class="modal-body">
-    <p>VIMS proposes a match based on:</p>
+    <p>Please carefully decide if each row is a match or not. </p>
     <ol>
         <li>vSKU from another Supplier; then</li>
         <li>MPN+UPC from UBS Items, then</li>
@@ -258,6 +258,17 @@ $('.search-form form').submit(function(){
         <li>MPN</li>
     </ol>
     <p>If the match is correct, check "Yes", otherwise No or Undecided.</p>
+    
+    <p>Please carefully decide if each row is a match or not. <br>
+    Also, be careful when clicking the radio buttons, Y/N/U. <br>
+    </p>
+    <p>
+    Yes, No, or Undecided. <br>
+    “Y” means that you are accepting this item as a match. <br>
+    "N" means that this Supplier Item is NOT a Match to the UBS Product. <br>
+    "U" means that you are Undecided. 
+    </p>
+    <p>Rows with green backgrounds are proposed matches for you to review based upon the criteria in the Match By column.</p>
 </div>
 
 <div class="modal-footer">
@@ -326,6 +337,11 @@ $columns = array(
         'htmlOptions' => array(
             'style' => 'width:120px;',
         ),
+    ),
+    array(
+        'header' => 'Find',
+        'type' => 'raw',
+        'value' => 'CHtml::link("Find", "#", array("onclick" => "js:$(\'#ubs-item\').dialog(\'open\');"))',
     ),
     array(
         'header' => '% Diff',
@@ -441,6 +457,9 @@ $columns = array(
         'headerHtmlOptions' => array(
             'style' => 'width:80px;',
         ),
+        'htmlOptions' => array(
+            'style' => 'text-align: right;'
+        ),
     ),
     array(
         'header' => 'Will<br/>Auto<br/>Accept?',
@@ -537,7 +556,12 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'match-help')); ?>
             Hello VIMS User: <?php echo Yii::app()->user->name ?> <br/>
             Please carefully decide if each row is a match or not. <br/>
             Also, be careful when clicking  the radio buttons, Y/N/U. <br/>
+            <br/>
             Yes, No,  or Undecided. <br/>
+            “Y” means that you are accepting this item as a match. <br/>
+            "N" means that this Supplier Item is NOT a Match to the UBS Product. <br/>
+            "U" means that you are Undecided. <br/>
+            <br/>
             Rows with green backgrounds are proposed matches for you to review based upon the criteria in the Match By column.
 	</div>
 
@@ -565,6 +589,7 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'first-pop-up')); ?>
             Please carefully decide if each row is a match or not. <br/>
             Also, be careful when clicking  the radio buttons, Y/N/U. <br/>
             Yes, No,  or Undecided. <br/>
+            “Y” means that you are accepting this item as a match. <br/>
             Rows with green backgrounds are proposed matches for you to review based upon the criteria in the Match By column.
 	</div>
 
@@ -578,13 +603,64 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'first-pop-up')); ?>
 	</div>
 <?php $this->endWidget(); ?>
 
+<div style="display:none">
+ <?php
+        $this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+            'id' => 'ubs-item',
+            // additional javascript options for the dialog plugin
+            'options' => array(
+                'width' => '900',
+                'height' => '500',
+                'title' => 'UBS Items',
+                'autoOpen' => false,
+                'buttons' => array(
+                    array('text' => 'Cancel', 'click' => 'js:function(){ $(this).dialog("close"); }'),
+                ),
+            ),
+        ));
+        ?>
+
+<?php
+    $ubs = new UbsInventory('search');
+    $ubs->unsetAttributes();
+    if (isset($_REQUEST['UbsInventory']))
+        $ubs->attributes = $_REQUEST['UbsInventory'];
+
+    $this->widget('bootstrap.widgets.TbGridView', array(
+        'id' => 'ubs-inventory-grid',
+        'dataProvider' => $ubs->search(),
+        'filter' => $ubs,
+        'columns' => array(
+            array(
+                'header' => 'Select',
+                'type' => 'raw',
+                'value' => 'CHtml::link("Select", "javascript:void(0)", array("data-id" => $data->primaryKey, "data-name" => $data->sku, "class" => "btn btn-small btn-success select-ubs"));'
+            ),
+            'id',
+            'sku',
+            'sku_name',
+        ),
+    ));
+?>
+
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog'); ?>
+</div>
+
+
 <script src="<?php echo Yii::app()->request->baseUrl ?>/js/colResizable-1.3.min.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function(){
         //$("table").colResizable({headerOnly: true});
         $("table.items").removeClass("CRZ");
         
-        if (<?php echo (!isset($_GET['SupItemsNewManage']) ? 1 : 0)?>) 
-            $("#first-pop-up").modal('show');
+        //if (<?php echo (!isset($_GET['SupItemsNewManage']) ? 1 : 0)?>) 
+            //$("#first-pop-up").modal('show');
+    });
+    
+    $('.select-ubs').live('click', function () {
+        id = $(this).attr('data-id');
+        name = $(this).attr('data-name');
+        console.log(name);
+        $('#ubs-item').dialog('close');
     });
 </script>
