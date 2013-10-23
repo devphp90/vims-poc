@@ -111,11 +111,18 @@ $('.search-form form').submit(function(){
 			),
 
 		),*/
-		array(
+	/*	array(
 			'header'=>'VIMS<br/>Stock Status',
 			//'name'=>'sup_status',
 			'type'=>'raw',
 			'value'=>'CHtml::dropdownlist("sup_status",$data->suppItem->sup_status,array(1=>"InStock", 0=>"BackOrdered", 3=>"Missing", 2=>"Discontinued"),array("class"=>"span2 editdropdown","data-id"=>$data->suppItem->id))',
+		),
+		*/
+		array(
+			'header'=>'User Item Status',
+			'type' => 'raw',
+			'value'=>'CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id))',
+			//'value'=>'CHtml::dropdownlist("sup_status",$data->suppItem->sup_status,array(1=>"InStock", 0=>"BackOrdered", 3=>"Missing", 2=>"Discontinued"),array("class"=>"span2 editdropdown","data-id"=>$data->suppItem->id))',
 		),
 		array(
 			'header'=>'QTY Current Update',
@@ -154,7 +161,7 @@ $('.search-form form').submit(function(){
 	),
 )); ?>
 <script>
-	$(document).on('change', ".editdropdown", function(){
+	/*$(document).on('change', ".editdropdown", function(){
 		$.ajax({
 			url: "/index.php/supInventory/ajaxSupstatus",
 			data:{
@@ -169,5 +176,26 @@ $('.search-form form').submit(function(){
 
 		});
 		console.log("change");
+	});*/
+	
+	$('a.status').live('click', function () {
+		id = $(this).attr('data-id');
+		$(this).text('Loading...');
+		elemen = $(this);
+		$.ajax({
+				url: '<?php echo $this->createUrl('/supInventory/changeStatus') ?>',
+			type: 'POST',
+			data: {id: id},
+			success: function (response) {
+				if(response == 0) {
+					elemen.text("Inactive");
+				} else {
+					elemen.text("Active");
+				}
+			}
+		
+		});
+		return false;
 	});
+	
 </script>

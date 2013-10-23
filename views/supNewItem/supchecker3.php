@@ -19,6 +19,9 @@
         background-color: #dff0d8
     }
     .mismatched {background-color: #FCF2F2;}
+	.panel {
+		overflow: visible!important;
+	}
 </style>
 
 <script>
@@ -318,13 +321,17 @@ $this->widget('bootstrap.widgets.TbButton', array(
 ?>
 </div>
 <?php $this->endWidget(); ?>
-    
-    <table id="tt" title="Manage Supplier New Items" style="width:auto;height:570px" data-options="
+<div style="width:99%">
+<?php 
+$pageSize = (isset($_REQUEST['pageSize']) ? $_REQUEST['pageSize'] : '100');
+?>
+    <table id="tt" title="Manage Supplier New Items" style="width:auto; height:570px" data-options="
            view:scrollview,rownumbers:true,singleSelect:true,
-           url:'<?php echo $this->createUrl('/supNewItem/getData3', array('supplierId' => $supid)) ?>',
-           autoRowHeight:false,pageSize:<?php echo (isset($_GET['pageSize']) ? $_GET['pageSize'] : '100') ?>">
+           url:'<?php echo $this->createUrl('/supNewItem/getData3', array('supplierId' => $supid, 'pageSize' => $pageSize)) ?>',
+           autoRowHeight:false,pageSize:<?php echo $pageSize ?>">
         <thead data-options="frozen:true">
         <tr>
+			<th data-options="field:'id',width:60">ID</th>
             <th data-options="field:'matchby',width:60">Match By</th>
             <th data-options="field:'match',width:120">Match</th>
             <th data-options="field:'diff',width:90,align:'right'">% Diff</th>
@@ -336,7 +343,7 @@ $this->widget('bootstrap.widgets.TbButton', array(
     </thead>
     <thead>
         <tr>
-            <th data-options="field:'ubs_item_name',width:120,align:'center'">UBS Item Name</th>
+            <th data-options="field:'ubs_item_name',width:120,align:'left'">UBS Item Name</th>
             <th data-options="field:'mfg_part_name',width:120,align:'center'">Mfg Part Name</th>
             <th data-options="field:'supp_mfg_name',width:120,align:'center'">Supp Mfg Name</th>
             <th data-options="field:'ubs_mfg_name',width:120,align:'center'">UBS Mfg Name</th>
@@ -350,11 +357,12 @@ $this->widget('bootstrap.widgets.TbButton', array(
         </tr>
     </thead>
     </table>
-
+</div>
 <?php 
 Yii::app()->clientScript->registerScript('load', "
     jQuery(document).ready(function() {
         $('#tt').datagrid();
+		$('.panel-header').width($('.datagrid-view').width() -10)
     });
 ", CClientScript::POS_HEAD);
 ?>

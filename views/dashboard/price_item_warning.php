@@ -65,6 +65,17 @@ $('.search-form form').submit(function(){
 	)); ?>
 	</div>
 <?php $this->endWidget(); ?>
+<style>
+.grid-view .summary {
+    float: right;
+    margin-bottom: 5px;
+    position: absolute;
+    right: 62px;
+    text-align: right;
+    top: 152px;
+    width: 249px;
+}
+</style>
 <h1>Supplier Update, Price Item Warnings</h1>
 
 <div class="search-form" style="display:none">
@@ -83,11 +94,19 @@ $('.search-form form').submit(function(){
 		'mfg_sku',
 		'mfg_name',
 		'mfg_part_name',
-		array(
+		/*array(
 			'header'=>'Item Status',
 			'value'=>'"InStock"',
-		),
+		),*/
+		
 		array(
+			'header'=>'User Item Status',
+			'type' => 'raw',
+			'value'=>'CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id))',
+			
+		),
+		
+		/*array(
 
 			'header'=>'Action<br/>Taken',
 			'type'=>'raw',
@@ -96,7 +115,7 @@ $('.search-form form').submit(function(){
 				'style'=>'width:100px;',
 			),
 
-		),
+		),*/
 		array(
 			'header'=>'Price Current Update',
 			'name'=>'price',
@@ -127,3 +146,24 @@ $('.search-form form').submit(function(){
 		*/
 	),
 )); ?>
+<script>
+$('a.status').live('click', function () {
+		id = $(this).attr('data-id');
+		$(this).text('Loading...');
+		elemen = $(this);
+		$.ajax({
+				url: '<?php echo $this->createUrl('/supInventory/changeStatus') ?>',
+			type: 'POST',
+			data: {id: id},
+			success: function (response) {
+				if(response == 0) {
+					elemen.text("Inactive");
+				} else {
+					elemen.text("Active");
+				}
+			}
+		
+		});
+		return false;
+	});
+</script>

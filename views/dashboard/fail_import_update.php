@@ -6,7 +6,9 @@ $this->breadcrumbs=array(
 );
 $this->menu=array(
     array(
-        'label'=>'',
+        'label'=>'Help',
+		'linkOptions' => array('data-toggle' => 'modal', 'data-target' => '#help-modal'),
+		'url' => '#',
     ),
 );
 Yii::app()->clientScript->registerScript('search', "
@@ -33,7 +35,7 @@ $('.search-form form').submit(function(){
     width: 249px;
 }
 </style>
-<h1> Manage Supplier Failed Imports and Updates</h1>
+<h1>Supplier Sheet FAILS - Downloads, Imports and Updates</h1>
 
 <?php
 
@@ -44,6 +46,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
     'fixedHeader' => true,
     'headerOffset' => 61,
     'enableSorting' => false,
+	'ajaxUrl'=> $this->createUrl('tabsImportLog/failImportAndUpdate', $_REQUEST),
     'columns'=>array(
        
         array(
@@ -83,7 +86,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
             'headerHtmlOptions' => array('style' => 'width: 70px'),
         ),
         array(
-            'header'=>'Import Start<br/>Date/Time',
+            'header'=>'Download Start<br/>Date/Time',
             'name'=>'create_time',
 			'filter' => false,
             'htmlOptions' => array('style' => 'width: 7%;'),
@@ -209,11 +212,34 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'myModal')); ?>
 )); ?>
 </div>
 <?php $this->endWidget(); ?>
+
+
+<?php $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'help-modal')); ?>
+<div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h4>Help</h4>
+</div>
+<div class="modal-body">
+  
+</div>
+<div class="modal-footer">
+   
+    <?php $this->widget('bootstrap.widgets.TbButton', array(
+    'label'=>'Close',
+    'url'=>'#',
+    'htmlOptions'=>array('data-dismiss'=>'modal'),
+)); ?>
+</div>
+<?php $this->endWidget(); ?>
+
+
 <script type="text/javascript">
-    $('.user-action').click(function () {
-        tabs_id = $(this).attr('tabs_id');
-        tabs_import_log_id = $(this).attr('tabs_import_log_id');
-        $('#tabs_id').val(tabs_id);
-        $('#tabs_import_log_id').val(tabs_import_log_id);
-    })
+
+    $('.user-action').live('click', function () {
+        var t_id = $(this).attr('tabs_id');
+        var t_i_id = $(this).attr('tabs_import_log_id');
+        $('#tabs_id').val(t_id);
+        $('#tabs_import_log_id').val(t_i_id);
+    });
+
 </script>

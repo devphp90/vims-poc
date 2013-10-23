@@ -196,7 +196,7 @@ $this->breadcrumbs = array(
 );
 
 $this->menu = array(
-    array('label' => 'List', 'url' => array('index')),
+    
     array('label' => 'Delete All', 'url' => '#', 'linkOptions' => array('submit' => array('deleteAll?id=' . $supid), 'confirm' => 'Are you sure you want to delete all item?')),
     array('label' => 'Delete All MisMatch', 'url' => '#', 'linkOptions' => array('submit' => array('deleteAllMarkedAsMisMatch?id=' . $supid), 'confirm' => 'Are you sure you want to delete all items marked as mismatch?')),
     //array('label'=>'Accept All', 'url'=>'#', 'linkOptions'=>array('submit'=>array('import'),'confirm'=>'Are you sure you want to import all item?','target'=>'_blank')),
@@ -213,6 +213,7 @@ $this->menu = array(
     array('label' => 'Check All Yes if Match for this Page', 'url' => '#', 'linkOptions' => array('onclick' => 'checkAllForPage();')),
     array('label' => 'Check All No if Not Match for this Page', 'url' => '#', 'linkOptions' => array('onclick' => 'checkAllNoForPage();')),
     array('label' => 'Search/Filter', 'url' => '#', 'linkOptions' => array('class' => 'search-button')),
+	array('label' => 'TbName: '.$model->tableName(), 'url' => '#'),
 );
 
 
@@ -341,7 +342,7 @@ $columns = array(
     array(
         'header' => 'Find',
         'type' => 'raw',
-        'value' => 'CHtml::link("Find", "#", array("onclick" => "js:$(\'#ubs-item\').dialog(\'open\');"))',
+        'value' => 'CHtml::link("Find", "#", array("class" => "find-match", "data-id" => $data->id))',
     ),
     array(
         'header' => '% Diff',
@@ -648,6 +649,11 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'first-pop-up')); ?>
 
 
 <script src="<?php echo Yii::app()->request->baseUrl ?>/js/colResizable-1.3.min.js" type="text/javascript"></script>
+<form method = "post" id="find_match">
+	<input type="hidden" name="ubs_id" id="ubs_id"/>
+	<input type="hidden" name="checker_id" id="checker_id" />
+</form>
+
 <script type="text/javascript">
     $(function(){
         //$("table").colResizable({headerOnly: true});
@@ -660,7 +666,16 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'first-pop-up')); ?>
     $('.select-ubs').live('click', function () {
         id = $(this).attr('data-id');
         name = $(this).attr('data-name');
-        console.log(name);
-        $('#ubs-item').dialog('close');
+       
+		$('#ubs_id').val(id);
+		 $('#ubs-item').dialog('close');
+		 $('#find_match').submit();
+		
     });
+	
+	$('.find-match').live('click', function() {
+		id = $(this).attr('data-id');
+		$('#checker_id').val(id);
+		$('#ubs-item').dialog('open');
+	});
 </script>
