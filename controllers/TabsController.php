@@ -28,7 +28,7 @@ class TabsController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create','supplierSetupStatus', 'supplierNotScheduled', 'freshUpdate', 'update', 'admin', 'delete', 'warehouseadd', 'updatewarehouse', 'setup', 'deletewarehouse', 'supitemstatus', 'dashboard', 'index', 'view'),
+                'actions' => array('create','saveSesson', 'supplierSetupStatus', 'supplierNotScheduled', 'freshUpdate', 'update', 'admin', 'delete', 'warehouseadd', 'updatewarehouse', 'setup', 'deletewarehouse', 'supitemstatus', 'dashboard', 'index', 'view'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -36,6 +36,16 @@ class TabsController extends Controller
             ),
         );
     }
+	
+	public function actionSaveSesson()
+	{
+		if(isset($_POST['tabs_id'])) {
+			$user = User::model()->findByPk(Yii::app()->user->id);
+			$user->tabs_id = $_POST['tabs_id'];
+			$user->supplier_filter_text = $_POST['text'];
+			$user->save(false);
+		}
+	}
 	
 	public function actionSupplierNotScheduled()
 	{
@@ -209,8 +219,15 @@ class TabsController extends Controller
         $request = Yii::app()->request;
         /** @var Tabs $model  */
         $model = $this->loadModel($id);
-
-
+		/*$user = User::model()->findByPk(Yii::app()->user->id);
+		if($user != null) {
+			$user->tabs_id = $id;
+			if(isset($_GET['Tabs']['supplier_name'])) {
+				$user->supplier_filter_text = $_GET['Tabs']['supplier_name'];
+			}
+			$user->save(false);
+		}
+		*/
         if (time() - strtotime($model->update_time) < 5 && $model->update_by != Yii::app()->user->id) {
             Yii::app()->user->setFlash('error', "Locked, you can read only");
             $this->redirect(array('admin'));
@@ -368,9 +385,23 @@ class TabsController extends Controller
         $request = Yii::app()->request;
         $model = new Tabs('search');
         $model->unsetAttributes(); // clear any default values
+		
+		
+		
         if (isset($_GET['Tabs']))
             $model->attributes = $_GET['Tabs'];
-
+		else {
+			$user = User::model()->findByPk(Yii::app()->user->id);
+			if(!empty($user->tabs_id)) {
+				$tabs = Tabs::model()->findByPk($user->tabs_id);
+				if(empty($user->supplier_filter_text))
+					$model->supplier_name = $tabs->supplier->name;
+				else {
+					$model->supplier_name = $user->supplier_filter_text;
+				}
+			}
+		}
+		
         $type = $request->getQuery('type');
 
         if (Yii::app()->request->isAjaxRequest)

@@ -1,13 +1,13 @@
 <style>
-.grid-view .summary {
-    float: right;
-    margin-bottom: 5px;
-    position: absolute;
-    right: 62px;
-    text-align: right;
-    top: 152px;
-    width: 249px;
-}
+    .grid-view .summary {
+        float: right;
+        margin-bottom: 5px;
+        position: absolute;
+        right: 62px;
+        text-align: right;
+        top: 152px;
+        width: 249px;
+    }
 </style>
 <?php
 $this->breadcrumbs = array(
@@ -19,8 +19,8 @@ $this->menu = array(
 //    array('label' => 'List ', 'url' => array('index')),
 //    array('label' => 'Create ', 'url' => array('create')),
     array(
-        'label' => 'Help', 
-        'url' => '#', 
+        'label' => 'Help',
+        'url' => '#',
         'linkOptions' => array(
             'data-toggle' => 'modal',
             'data-target' => '#help',
@@ -42,7 +42,7 @@ $('.search-form form').submit(function(){
 ");
 ?>
 
-<h1>Supplier vSheet Duplicate Items</h1>
+<h1>Supplier vSheet Duplicate Items: <?php echo $model->supplier->name ?></h1>
 <!--
 <p>
 You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
@@ -64,13 +64,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     'dataProvider' => $model->search(),
     'filter' => $model,
     'columns' => array(
-        array(
-            'header' => 'Supplier',
-            'name' => 'supplierName',
-            'type' => 'raw',
-            //'value'=>'$data->supplier->name.\'<br/>\'.$data->import_routine->sup_id',
-            'value' => '$data->supplier->name',
-        ),
         'sheet_type',
         'update_type',
         'sup_vsku',
@@ -114,12 +107,12 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 
 <div class="modal-footer">
 
-<?php
-$this->widget('bootstrap.widgets.TbButton', array(
-    'label' => 'Close',
-    'url' => '#',
-    'htmlOptions' => array('data-dismiss' => 'modal'),
-));
-?>
+    <?php
+    $this->widget('bootstrap.widgets.TbButton', array(
+        'label' => 'Close',
+        'url' => '#',
+        'htmlOptions' => array('data-dismiss' => 'modal'),
+    ));
+    ?>
 </div>
 <?php $this->endWidget(); ?>

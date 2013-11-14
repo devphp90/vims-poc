@@ -1,6 +1,6 @@
 <?php
 $columns = array();
-
+$linkOptions = ',array("tabs_id" => $data->id)';
 if ($supplierOnly) {
     $columns = array(
         array(
@@ -16,14 +16,14 @@ if ($supplierOnly) {
         array(
             'type' => 'raw',
             'name' => 'supplier_name',
-            'value' => 'CHtml::link($data->importRoutine->supplier->name,array("update","id"=>$data->id))',
+            'value' => 'CHtml::link($data->importRoutine->supplier->name,array("update","id"=>$data->id),array("tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 10%'),
             'headerHtmlOptions' => array('style' => 'width: 10%'),
         ),
         array(
             'header' => 'Supplier<br/>Items',
             'type' => 'raw',
-            'value' => 'CHtml::link(\'Supp Items\',array(\'/supInventory/supview\',\'id\'=>$data->id),array())',
+            'value' => 'CHtml::link(\'Supp Items\',array(\'/supInventory/supview\',\'id\'=>$data->id),array("tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 80px'),
             'headerHtmlOptions' => array('style' => 'width: 80px'),
         ),
@@ -32,7 +32,7 @@ if ($supplierOnly) {
             'name' => 'supplier.active',
             'type' => 'raw',
             'value' => 'CHtml::link($data->importRoutine->supplier->active?"Active":"Inactive", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->importRoutine->supplier->id)), array("id" => "link-status-".$data->importRoutine->supplier->id, "class" => "status-toggle"))
-        . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->importRoutine->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle"))',
+        . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>$data->importRoutine->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle", "tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 70px'),
             'headerHtmlOptions' => array('style' => 'width: 70px'),
         ),
@@ -60,31 +60,31 @@ if ($supplierOnly) {
         array(
             'header' => 'Run<br/>Import<br/>Update',
             'type' => 'raw',
-            'value' => 'CHtml::link("Run I/U",array("/importRoutine/triggleIU","id"=>$data->id),array("target"=>"_blank"))',
+            'value' => 'CHtml::link("Run I/U",array("/importRoutine/triggleIU","id"=>$data->id),array("target"=>"_blank", "tabs_id" => $data->id))',
         ),
         array(
             'header' => 'Import<br/>Log',
             'type' => 'raw',
-            'value' => 'CHtml::link(\'Import Log\',array(\'/tabsImportLog/logview\',\'id\'=>$data->id),array())',
+            'value' => 'CHtml::link(\'Import Log\',array(\'/tabsImportLog/logview\',\'id\'=>$data->id),array("tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 80px'),
             'headerHtmlOptions' => array('style' => 'width: 80px'),
         ),
         array(
             'header' => 'vSheet',
             'type' => 'raw',
-            'value' => 'CHtml::link(\'vSheet\',array(\'/importVsheet/vsheetview\',\'id\'=>$data->id),array())',
+            'value' => 'CHtml::link(\'vSheet\',array(\'/importVsheet/vsheetview\',\'id\'=>$data->id),array("tabs_id" => $data->id))',
         ),
         array(
             'header' => 'Update Log',
             'type' => 'raw',
-            'value' => 'CHtml::link(\'Update Log\',array(\'/tabsUpdateLog/logview\',\'id\'=>$data->id),array())',
+            'value' => 'CHtml::link(\'Update Log\',array(\'/tabsUpdateLog/logview\',\'id\'=>$data->id),array("tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 80px'),
             'headerHtmlOptions' => array('style' => 'width: 80px'),
         ),
         array(
             'header' => 'Manage<br/>New Items<br/>("Checkers")',
             'type' => 'raw',
-            'value' => 'CHtml::link(\'Checkers\',array(\'/supNewItem/supChecker\',\'supid\'=>$data->importRoutine->supplier->id),array())',
+            'value' => 'CHtml::link(\'Checkers\',array(\'/supNewItem/supChecker\',\'supid\'=>$data->importRoutine->supplier->id),array("tabs_id" => $data->id))',
             'htmlOptions' => array('style' => 'width: 80px'),
             'headerHtmlOptions' => array('style' => 'width: 80px'),
         ),
@@ -209,7 +209,22 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
             }, 'json')
 
             return false;
-        })
+        });
+		
+		$('.items a').live('click', function () {
+			$this = $(this);
+			$.ajax({
+				url: '<?php echo $this->createUrl('saveSesson') ?>',
+				type: 'POST',
+				data: { text: $('#Tabs_supplier_name').val(), tabs_id: $this.attr('tabs_id')},
+				success: function (response) {
+				
+				}
+			});
+			
+		});
+		
+		
     })
 </script>
 

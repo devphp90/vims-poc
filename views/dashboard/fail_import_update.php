@@ -34,6 +34,16 @@ $('.search-form form').submit(function(){
     top: 152px;
     width: 249px;
 }
+
+#myModal {
+  max-height: 900px
+}
+#myModal .modal-body {
+	max-height: 545px
+}
+.modal.fade.in {
+    top: 0%;
+}
 </style>
 <h1>Supplier Sheet FAILS - Downloads, Imports and Updates</h1>
 
@@ -240,6 +250,27 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'myModal')); ?>
         var t_i_id = $(this).attr('tabs_import_log_id');
         $('#tabs_id').val(t_id);
         $('#tabs_import_log_id').val(t_i_id);
+		
+		$('#last_action, #date_time_last_action, #last_action_reason, #last_action_user,#last_action_note').text('loading...');
+		
+		$.ajax({
+			url: '<?php echo $this->createUrl('getLastReason') ?>',
+			type: 'POST',
+			data: {tabs_import_log_id: t_i_id},
+			success: function (response) {
+				if(response == 'null') {
+					$('#last_action, #date_time_last_action, #last_action_reason, #last_action_user,#last_action_note').text('');
+				} else {
+					dt = eval('('+response+')');
+					$('#last_action').text(dt.action);
+					$('#date_time_last_action').text(dt.created_time);
+					$('#last_action_reason').text(dt.reason);
+					$('#last_action_user').text(dt.user);
+					$('#last_action_note').text(dt.notes);
+				}
+			}
+		});
+		
     });
 
 </script>

@@ -6,7 +6,8 @@
 //
 //));
 ?>
- <?= $form->textFieldRow($navsup_model,'supplier_name',array('readOnly'=>'readOnly'));?>
+<div class="row-fluid">
+	<div class="span4"> 
   <?= $form->textFieldRow($navsup_model,'url',array('placeholder'=>'Url'));?>
 
   <?= $form->textFieldRow($navsup_model,'username_label',array('placeholder'=>'')); ?>
@@ -18,10 +19,12 @@
   <?= $form->textFieldRow($navsup_model,'password',array('placeholder'=>'Password')); ?>
 
   <?= $form->textFieldRow($navsup_model,'logon_label',array('placeholder'=>'')); ?>
-
+	
   <?= $form->textFieldRow($navsup_model,'step2_label',array('placeholder'=>'')); ?>
 
   <?= $form->textFieldRow($navsup_model,'step3_label',array('placeholder'=>'')); ?>
+  </div>
+	<div class="span4">
   <?= $form->textFieldRow($navsup_model,'step4_label',array('placeholder'=>'')); ?>
   <?= $form->textFieldRow($navsup_model,'step5_label',array('placeholder'=>'')); ?>
   <?= $form->textFieldRow($navsup_model,'step6_label',array('placeholder'=>'')); ?>
@@ -30,6 +33,8 @@
   <?= $form->textFieldRow($navsup_model,'step9_label',array('placeholder'=>'')); ?>
   <?= $form->textFieldRow($navsup_model,'step10_label',array('placeholder'=>'')); ?>
   <?= $form->textFieldRow($navsup_model,'download_link',array('placeholder'=>'')); ?>
+  </div>
+</div>
 <div id="div-downloaded-file" class="control-group" style="display: none">
   <label class="control-label">File downloaded here: </label>
   <div class="controls">

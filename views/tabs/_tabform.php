@@ -228,7 +228,7 @@
 
       'id'=>'tabs_14',
 
-      'label'=>'Email HTML <br/> Table Supplier',
+      'label'=>'Copy n Paste <br/>Supplier',
 
       'content'=>$this->renderPartial('tabs/_emailsupplier',compact('supplierModel','model','form'),1),
 
@@ -249,7 +249,7 @@
   );
   }
 
-	$this->widget('bootstrap.widgets.TbWizard', array(
+/*	$this->widget('bootstrap.widgets.TbWizard', array(
 
 		'type'=>'tabs', // 'tabs' or 'pills'
 
@@ -293,8 +293,38 @@
 
 
 
-));
+));*/
+$this->widget('bootstrap.widgets.TbWizard', array(
 
+		'type'=>'tabs', // 'tabs' or 'pills'
+
+		'encodeLabel'=>false,
+
+	    'tabs'=> $tabs,
+
+	    'pagerContent' => '',
+
+		'options' => array(
+
+			'nextSelector' => '.button-next',
+
+			'previousSelector' => '.button-previous',
+
+			'onTabClick' => 'js:function(tab, navigation, index) {
+
+
+
+			}',
+
+		),
+
+
+
+    // additional javascript options for the tabs plugin
+
+
+
+));
 ?>
 
 <br/>

@@ -129,6 +129,19 @@ $('.search-form form').submit(function(){
 			'value'=>'$data->last_price?(($data->price-$data->last_price)/$data->last_price)*100:"N/A"',
 		),
 
+		array(
+			'header'=>'VIMS Supp ID1',
+			'name'=>'importRoutine.sup_id',
+		),
+		array(
+			'header'=>'VIMS Supp ID2',
+			'name'=>'tabs.id',
+		),
+		array(
+			'header'=>'UBS Supp ID',
+			'name'=>'importRoutine.supplier.ubs_supplier_id',
+		),
+		
 		'import_id',
 		'id',
 		/*

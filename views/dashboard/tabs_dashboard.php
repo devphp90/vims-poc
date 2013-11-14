@@ -92,7 +92,17 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'myModal')); ?>
 <?php $this->endWidget(); ?>
 	
 
-
+<style>
+.grid-view .summary {
+    float: right;
+    margin-bottom: 5px;
+    position: absolute;
+    right: 62px;
+    text-align: right;
+    top: 152px;
+    width: 249px;
+}
+</style>
 <h1>Suppliers</h1>
 
 <div class="search-form" style="display:none">
@@ -133,7 +143,23 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id'=>'myModal')); ?>
 
 		
 		'create_time',
-		'id',
+		
+		
+		array(
+			'header'=>'VIMS Supp ID1',
+			'name'=>'supplier_id',
+		),
+		array(
+			'header'=>'VIMS Supp ID2',
+			'name'=>'id',
+		),
+		array(
+			'header'=>'UBS Supp ID',
+			'name'=>'supplier.ubs_supplier_id',
+		),
+		
+		
+		//'id',
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
 		),

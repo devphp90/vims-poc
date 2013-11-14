@@ -47,7 +47,7 @@ $this->widget('bootstrap.widgets.TbGridView',array(
 		array(
 			'header' => 'Select',
 			'type' => 'raw',
-			'value' => 'CHtml::link("Select", "javascript:void(0)", array("data-id" => $data->primaryKey, "data-name" => $data->SupplierName, "class" => "btn btn-small btn-success select-ubs"));'
+			'value' => 'CHtml::link("Select", "javascript:void(0)", array("data-id" => $data->SupplierID, "data-name" => $data->SupplierName, "class" => "btn btn-small btn-success select-ubs"));'
 		),
 		'SupplierID',
 		'SupplierName',

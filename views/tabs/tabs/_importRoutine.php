@@ -193,7 +193,7 @@ $(function(){
 <div class="span5 well">
 	<h4>Sheet 1 (Qty and Price, or Qty)</h4>
 	
-	<?php echo $form->dropDownListRow($importRoutineModel,'method_id',CHtml::listData(ImportMethod::model()->findAll(),'id','type'), array('hint'=>''))?>
+	<?php echo $form->dropDownListRow($importRoutineModel,'method_id',CHtml::listData(ImportMethod::model()->findAll("`using` = 1 order by `order` asc"),'id','type'), array('hint'=>''))?>
 	
 	<fieldset method="1" id="method1" <?php echo $importRoutineModel->method_id !=1?'style="display:none;"':''?>>
 		<legend >FTP Setting</legend>
