@@ -40,8 +40,9 @@ class Retrieve
 		$this->setNewFileName($this->_importRoutineModel);
 
 		$this->checkZip($this->_importRoutineModel);
-		
+
 		$this->saveFile($this->_importRoutineModel);
+
 		if(!$this->_notchanged)
 			$this->unzipFile($this->_importRoutineModel);
 
@@ -69,7 +70,6 @@ class Retrieve
 	    );
 	    
 	    $this->_downloadName = $importRoutineModel->file_name;
-	    
 	    
 	    switch($importRoutineModel->unzip){
 		    case 1:
@@ -134,25 +134,26 @@ class Retrieve
 	function saveToDB($importRoutineModel)
 	{
 		//make 8 row version
-		$enclosure = empty($importRoutineModel->enclosure)?'':$importRoutineModel->enclosure;
+		$enclosure = empty($importRoutineModel->enclosure)?'"':$importRoutineModel->enclosure;
 		$delimiter = empty($importRoutineModel->delimiter)?',':$importRoutineModel->delimiter;
 		
 		if($delimiter == '\t')
 			$delimiter = "\t";
 
 		if($importRoutineModel->file_id == 1){
+			$i = 1;
 			if (($handle = fopen($this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName, "r")) !== FALSE) 
 			    while (($row = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) 
 					if($i++<8)
 						$data[] = $row;
 					else
 						break;
+						
 		}else if($importRoutineModel->file_id == 3){
-		
+
 			Yii::import('application.vendors.PHPExcel',true);	
 
-				
-			
+
 			$objPHPExcel = PHPExcel_IOFactory::load($this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName);
 			$objWorksheet = $objPHPExcel->getActiveSheet();
 				
@@ -163,8 +164,9 @@ class Retrieve
 			  		$row1[$cell_id] = trim($cell->getValue());
 			  	else
 			  		break;
-			  	$data[] = $row1;
+			  	@$data[] = $row1;
 			}
+
 			/*
 
 			Yii::import('ext.excel.reader',true);	
@@ -194,9 +196,11 @@ class Retrieve
 		}else{
 			throw new CHttpException(400,'File type not supported');
 		}
+		
 		$importRoutineModel->{'8rows'} = base64_encode(serialize($data));
 
-		$this->_importModel->import_file_url = 'http://vims.axeo.net/upload/'.$this->_newFileName;
+		$this->_importModel->import_file_url = Yii::app()->request->hostInfo.'/upload/'.$this->_newFileName;
+
 		$this->_importModel->save(false);
 		$importRoutineModel->save(false);
 	}
@@ -235,19 +239,25 @@ class Retrieve
 		$file = fopen ($this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName, 'w');
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, $importRoutineModel->http_url.'/'.$importRoutineModel->ftp_path.'/'.$this->_downloadName);
+		curl_setopt($ch, CURLOPT_URL, $importRoutineModel->http_url.'/'.(empty($importRoutineModel->ftp_path)?'':$importRoutineModel->ftp_path.'/').$this->_downloadName);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERPWD, $importRoutineModel->http_username.":".$importRoutineModel->http_password);
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($ch, CURLOPT_FILE, $file);
-		
+		curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)"); 
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		
 		$content = curl_exec($ch);
 		$info = curl_getinfo($ch);
 
 		curl_close($ch);
 		fclose($file);
-		
+/*
+		var_dump($info);
+		echo $importRoutineModel->http_url.'/'.$importRoutineModel->ftp_path.'/'.$this->_downloadName;
+		echo $this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName;
+		exit;
+*/
 		
 		switch($info['http_code']){
 				
@@ -274,19 +284,20 @@ class Retrieve
 	public function email($importRoutineModel)
 	{
 
-		$username = 'test+vims.axeo.net';
-		$password = '?unbeataxeo1';
+		$username = 'vims.ubs@gmail.com';
+		$password = 'net12345';
 		
+		$conn = imap_open ("{imap.gmail.com:993/imap/ssl}INBOX", $username, $password);
 		
-		$conn = @imap_open ("{localhost:993/imap/ssl/novalidate-cert}INBOX", $username, $password);
 		if($conn == false)
 			$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'Email receivers are down,contact us',true);
 			
 		
-		$mails   = imap_search($conn, 'SUBJECT "'.$importRoutineModel->email_subject.'" FROM "'.$importRoutineModel->email_sender.'"',SE_UID);
-		
+		$mails   = imap_search($conn, 'SUBJECT "'.$importRoutineModel->email_subject.'" FROM "'.$importRoutineModel->email_sender.'"');
+
 		if($mails != NULL){
 			$uid = $mails[count($mails)-1];
+
 			$attachs = $this->extract_attachments($conn, $uid);
 			
 			foreach($attachs as $attach)
@@ -303,58 +314,7 @@ class Retrieve
 		
 	}
 	
-	public function ftp($importRoutineModel)
-	{
-		
-		
-
-		
-		$curl = curl_init();
-		$file = fopen ($this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName, 'w');
-
-		curl_setopt($curl, CURLOPT_URL, $importRoutineModel->ftp_server.'/'.$importRoutineModel->ftp_path.'/'.$this->_downloadName);
-		curl_setopt($curl, CURLOPT_USERPWD, $importRoutineModel->ftp_username.':'.$importRoutineModel->ftp_password);
-		curl_setopt($curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($curl, CURLOPT_FILE, $file);
-	 
-		$result = curl_exec($curl);
-		$info = curl_getinfo($curl);
-		
-
-		switch($info['http_code']){
-		
-			case 0://No FTP server found
-				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'No FTP service found (host:'.$importRoutineModel->ftp_server.')',true);
-				break;
-				
-			case 226://Success
-				$this->setFileSize($importRoutineModel, $info['size_download']);
-				break;
-				
-			case 530://username and password incorrect
-				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'Username or Password incorrect (user:'.$importRoutineModel->ftp_username.',pass:'.$importRoutineModel->ftp_password.')',true);
-				break;
-				
-			case 550://File name not found
-				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'File not found (filename:'.$this->_downloadName.')',true);
-				break;
-				
-			default://Unknown error
-				$this->_notchanged = 1;
-				//$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'Unknown Error(code:'.$info['http_code'].')');
-				
-		}
-		curl_close($curl);
-		fclose($file);
-	}
-	
-
-	
-    
-    function extract_attachments($connection, $message_number) 
+	function extract_attachments($connection, $message_number) 
 	{
 
 		$attachments = array();
@@ -389,14 +349,69 @@ class Retrieve
 		return $attachments;
 	}
 	
+	public function ftp($importRoutineModel)
+	{
+		
+
+
+		
+		$curl = curl_init();
+		$file = fopen ($this->_uploadDir.DIRECTORY_SEPARATOR.$this->_newFileName, 'w');
+
+		curl_setopt($curl, CURLOPT_URL, $importRoutineModel->ftp_server.'/'.$importRoutineModel->ftp_path.'/'.$this->_downloadName);
+		curl_setopt($curl, CURLOPT_USERPWD, $importRoutineModel->ftp_username.':'.$importRoutineModel->ftp_password);
+		curl_setopt($curl, CURLOPT_FAILONERROR, 1);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($curl, CURLOPT_FILE, $file);
+		curl_setopt($curl, CURLOPT_FTP_USE_EPSV, false);
+		
+		$result = curl_exec($curl);
+
+		$info = curl_getinfo($curl);
+
+		
+
+		switch($info['http_code']){
+		
+			case 0://No FTP server found
+				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'No FTP service found (host:'.$importRoutineModel->ftp_server.')',true);
+				break;
+				
+			case 226://Success
+				$this->setFileSize($importRoutineModel, $info['size_download']);
+				break;
+				
+			case 530://username and password incorrect
+				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'Username or Password incorrect (user:'.$importRoutineModel->ftp_username.',pass:'.$importRoutineModel->ftp_password.')',true);
+				break;
+				
+			case 550://File name not found
+				$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'File not found (filename:'.$this->_downloadName.')',true);
+				break;
+				
+			default://Unknown error
+				$this->_notchanged = 1;
+				//$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'Unknown Error(code:'.$info['http_code'].')');
+				
+		}
+		curl_close($curl);
+		fclose($file);
+	}
+	
+
+	
+    
+	
 	public function setFileSize($importRoutineModel, $filesize)
 	{
 		if($filesize <= 0){
 			$this->removeNewFile();
 			$this->importLog('download_sheet'.$this->getSheetNum($importRoutineModel),'File is empty',true);
 		}
-		
-		$this->_mainLogModel->{'sheet'.$this->getSheetNum($importRoutineModel).'_file_size'} = $filesize;
+		$temp = 'sheet'.$this->getSheetNum($importRoutineModel).'_file_size';
+//		$this->_mainLogModel->$temp = $filesize;
 		
 	}
 	

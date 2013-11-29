@@ -18,7 +18,7 @@
  * @property string $Phone
  * @property string $Email
  * @property string $SKU
- * @property string $Suppliers_SupplierID
+ * @property string $SupplierID
  * @property string $CartID
  */
 class UbsOpenOrder extends CActiveRecord
@@ -49,9 +49,9 @@ class UbsOpenOrder extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ItemNumber, Product, QuantityOrdered, OrderNumber, OrderDate, Name, SupplierName, Phone, Email, SKU, Suppliers_SupplierID, CartID', 'required'),
+			array('ItemNumber, Product, QuantityOrdered, OrderNumber, OrderDate, Name, SupplierName, Phone, Email, SKU, SupplierID, CartID', 'required'),
 			array('Cancelled, Approved', 'numerical', 'integerOnly'=>true),
-			array('ItemNumber, QuantityOrdered, OrderNumber, Suppliers_SupplierID, CartID', 'length', 'max'=>20),
+			array('ItemNumber, QuantityOrdered, OrderNumber, SupplierID, CartID', 'length', 'max'=>20),
 			array('Product, Name, SKU', 'length', 'max'=>255),
 			array('SupplierName', 'length', 'max'=>200),
 			array('Phone, Email', 'length', 'max'=>50),
@@ -59,7 +59,7 @@ class UbsOpenOrder extends CActiveRecord
             array('ApprovalDate', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, Cancelled, ItemNumber, Product, QuantityOrdered, Approved, ApprovalDate, OrderNumber, OrderDate, Name, SupplierName, Phone, Email, SKU, Suppliers_SupplierID, CartID', 'safe', 'on'=>'search'),
+			array('id, Cancelled, ItemNumber, Product, QuantityOrdered, Approved, ApprovalDate, OrderNumber, OrderDate, Name, SupplierName, Phone, Email, SKU, SupplierID, CartID', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -94,7 +94,7 @@ class UbsOpenOrder extends CActiveRecord
 			'Phone' => 'Phone',
 			'Email' => 'Email',
 			'SKU' => 'Sku',
-			'Suppliers_SupplierID' => 'Suppliers Supplier',
+			'SupplierID' => 'Suppliers Supplier',
 			'CartID' => 'Cart',
 		);
 	}
@@ -124,7 +124,7 @@ class UbsOpenOrder extends CActiveRecord
 		$criteria->compare('Phone',$this->Phone,true);
 		$criteria->compare('Email',$this->Email,true);
 		$criteria->compare('SKU',$this->SKU,true);
-		$criteria->compare('Suppliers_SupplierID',$this->Suppliers_SupplierID,true);
+		$criteria->compare('SupplierID',$this->SupplierID,true);
 		$criteria->compare('CartID',$this->CartID,true);
 
 		return new CActiveDataProvider($this, array(

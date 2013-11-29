@@ -16,7 +16,7 @@ return array(
 
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
 
-	'name'=>'VIMS 4.2',
+	'name'=>'VIMS 4.3',
 
 
 
@@ -25,7 +25,7 @@ return array(
 	'preload'=>array(
 
 
-/* //		'log', */
+/* 		'log', */
 
 
 
@@ -250,7 +250,6 @@ return array(
 		),
 
 
-/*
 
 
 		'log'=>array(
@@ -263,6 +262,7 @@ return array(
 
 
 
+/*
 				array(
 
 					'class'=>'CFileLogRoute',
@@ -270,6 +270,7 @@ return array(
 					'levels'=>'error, warning, trace',
 
 				),
+*/
 
 
 
@@ -306,7 +307,6 @@ return array(
 
 		),
 
-*/
 
 
 

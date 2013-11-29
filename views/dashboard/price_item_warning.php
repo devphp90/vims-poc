@@ -102,7 +102,7 @@ $('.search-form form').submit(function(){
 		array(
 			'header'=>'User Item Status',
 			'type' => 'raw',
-			'value'=>'CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id))',
+			'value'=>'isset($data->suppItem) ? CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id)) : ""',
 			
 		),
 		

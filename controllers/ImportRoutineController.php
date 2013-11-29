@@ -29,7 +29,7 @@ class ImportRoutineController extends Controller
 			array('allow',
 				'actions'=>array('start','get','updateFile','import'),
 
-				'ips'=>array('64.202.107.200','64.202.107.201','64.202.107.202','108.168.227.66','192.168.129.77','23.92.21.101','192.168.128.246','23.92.20.154'),
+				'ips'=>array('64.202.107.200','64.202.107.201','64.202.107.202','108.168.227.66','192.168.129.77','23.92.21.101','192.168.128.246','23.92.20.154','162.216.18.6'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
 				'actions'=>array('ajaxStatus','create','update','admin','delete','start','fetchColumn','ajaxsup','ajaxsheet','routineControl','get','manual','dashboard','importsheet','manualImport','importRoutine','updateroutine','getPartialSheet','testconnection','retrieveSheet','test','getimportUrl','getcsv','index','view','updateFile','newUpdateFile','import','triggleIU'),
@@ -141,6 +141,16 @@ class ImportRoutineController extends Controller
 		$ImportRoutine_http_url, 
 		$ImportRoutine_http_username, $ImportRoutine_http_password)
 	{
+		$import = ImportRoutine::model()->findByPk($ImportRoutine_id);
+		$import->method_id = $ImportRoutine_method_id;
+		$import->ftp_server = $ImportRoutine_ftp_server;
+		$import->ftp_port = $ImportRoutine_ftp_port;
+		$import->ftp_username = $ImportRoutine_ftp_username;
+		$import->ftp_password = $ImportRoutine_ftp_password;
+		$import->http_url = $ImportRoutine_http_url;
+		$import->http_username = $ImportRoutine_http_username;
+		$import->http_password = $ImportRoutine_http_password;
+		$import->save(false);
 
 		switch($ImportRoutine_method_id){
 		
@@ -165,7 +175,6 @@ class ImportRoutineController extends Controller
 				//stop it from outputting stuff to stdout
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-
 				$result = curl_exec($curl);
 				$timestamp = curl_getinfo($curl);
 				switch($timestamp['http_code']){
@@ -186,7 +195,7 @@ class ImportRoutineController extends Controller
 						break;
 				}
 				
-				exit;
+				break;
 			case 3:
 				$url = parse_url($ImportRoutine_http_url);
 				$ImportRoutine_http_url = $url['scheme'].'://'.$ImportRoutine_http_username.':'.$ImportRoutine_http_password.'@'.$url['host'];
@@ -250,23 +259,48 @@ var_dump(get_headers('http://google.com'));
 				'id2'=>$tabsModel->import_routine_id_2,
 			));
 
-
+		$supplier = Supplier::model()->findByPk($tabsModel->supplier_id);
+		if($supplier != null ) {
+			if($supplier->setup_status =="I") {
+				//Yii::app()->user->setFlash('error', 'Setup status is Incomplete.');
+				//$this->redirect($this->createUrl('tabs/admin'));
+				
+			}
+			if($tabsModel->importRoutine->sup_match_column <1){
+				echo "<br><br><br><h3 style='color:red'>vSKU 1 should has integer > 0 in field1.</h3>";
+				 echo '<br/><br/><br/><br/><br/><a href="#" onclick="window.close();">Close this window<a/>';
+				 die();
+					
+				}
+			$supplier->user_ran_iu = date('Y-m-d H:i:s');
+			$supplier->save(false);
+		}
 		echo '<a href="'.$importUrl.'">Import Link(debug only)</a>';
 		echo '<br/>';
-		$updateUrl = $this->createAbsoluteUrl("/importRoutine/updateFile",array(
+		$updateUrl = $this->createUrl("/importRoutine/updateFile",array(
 				'id'=>$tabsModel->import_routine_id,
 			));
+		
+		
+
+		$url = parse_url($tabsModel->importRoutine->import_server->update_url);
+		$updateUrl = $url['scheme'].'://'.$url['host'].$this->createUrl("/importRoutine/updateFile",array(
+			'id'=>$tabsModel->import_routine_id,
+		));
+		// --delete-after
 
 		echo '<a href="'.$updateUrl.'">Update Link(debug only)</a>';
 		$command = 'cd /tmp;wget --delete-after -q '.$importUrl.' > /dev/null ;';//.
        //     'wget --delete-after -q '.$updateUrl.' > /dev/null &';
+		
+		
 		exec($command);
 
 		echo $command;
 		
 	
 		$backUrl = $this->createAbsoluteUrl("/tabs/admin",array());
-		echo '<br/><a href="'.$backUrl.'">Back<a/>';
+		echo '<br/><br/><br/><br/><br/><a href="#" onclick="window.close();">Close this window<a/>';
 	}
 
 
@@ -591,11 +625,8 @@ var_dump(get_headers('http://google.com'));
 	public function actionGet($id,$id2)
 	{
 		$model = $this->loadModel($id);
-
-
-
-
-		$this->redirect($model->import_server->domain.'/index.php/crontab/get?id='.$model->id.'&id2='.$id2);
+		$url = $model->import_server->domain.'/index.php/crontab/get?id='.$model->id.'&id2='.$id2;
+		$this->redirect($url);
 
 	}
 	/**

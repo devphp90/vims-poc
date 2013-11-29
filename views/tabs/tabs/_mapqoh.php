@@ -3,7 +3,7 @@ $warehouseData = CHtml::listData(SupWarehouse::model()->findAll('sup_id=?',array
 ?>
 <div>
 
-	<?php echo $form->radioButtonListRow($importRoutineModel,'qoh_type',array('Number','Yes/No, Default Amount: '),array('separator'=>'','labelOptions'=>array('style'=>'display:inline'))); ?>
+	<?php echo $form->radioButtonListRow($importRoutineModel,'qoh_type',array('Number','Yes=Default Qty. Anything else, Qty=0.'),array('separator'=>'','labelOptions'=>array('style'=>'display:inline'))); ?>
 	
 	<?php echo $form->textFieldRow($importRoutineModel,'default_qty'); ?>
 	

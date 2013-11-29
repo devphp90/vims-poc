@@ -123,17 +123,17 @@ class SupplierController extends Controller
 
 	}
 
-	public function actionDashboard()
-	{
-		$model=new Supplier('search');
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Supplier']))
-			$model->attributes=$_GET['Supplier'];
-
-		$this->render('dashboard',array(
-			'model'=>$model,
-		));
-	}
+	//public function actionDashboard()
+	//{
+	//	$model=new Supplier('search');
+	//	$model->unsetAttributes();  // clear any default values
+	//	if(isset($_GET['Supplier']))
+	//		$model->attributes=$_GET['Supplier'];
+//
+	//	$this->render('dashboard',array(
+	//		'model'=>$model,
+	//	));
+	//}
 
 
 	public function actionAutocompleteSup() {
@@ -300,6 +300,9 @@ class SupplierController extends Controller
 
   public function actionNavSteps()
   {
+  	$nav = new Navstep(Yii::app()->request->getQuery('id'));
+  	echo $nav->getLink();
+  	exit;
     $request = Yii::app()->request;
 
     $model = new NavSupplier;
@@ -311,13 +314,13 @@ class SupplierController extends Controller
     }
 
     if ($request->isPostRequest) {
-      Yii::import('ext.simpletest.browser', true);
+      
       $model->attributes = $request->getPOST('NavSupplier');
       $model->save();
 
       if ($request->getQuery('save-only'))
         Yii::app()->end();
-
+		Yii::import('ext.simpletest.browser', true);
       $browser = &new SimpleBrowser();
       $browser->get($model->url);
 

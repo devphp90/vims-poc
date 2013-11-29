@@ -1,6 +1,7 @@
 <?php
 
-class SupNewItemController extends Controller {
+class SupNewItemController extends Controller
+{
 
     public $tempCounter = 1;
 
@@ -18,7 +19,8 @@ class SupNewItemController extends Controller {
      * @return array action filters
 
      */
-    public function filters() {
+    public function filters()
+    {
 
         return array(
             'accessControl', // perform access control for CRUD operations
@@ -34,7 +36,8 @@ class SupNewItemController extends Controller {
      * @return array access control rules
 
      */
-    public function accessRules() {
+    public function accessRules()
+    {
 
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -52,13 +55,25 @@ class SupNewItemController extends Controller {
         );
     }
 
-    public function actionNoMatchExport($type) {
-        Yii::import('application.vendors.*');
-        require_once 'PHPExcel.php';
-
+    public function actionNoMatchExport($type)
+    {
+        //Yii::import('application.extensions.phpexcel.*');
+        //require_once 'PHPExcel.php';
+		//Yii::import('application.vendors.PHPExcel.*');
+		//require_once 'PHPExcel/Settings.php';
+		//
+		
+		spl_autoload_unregister(array('YiiBase','autoload'));
+		Yii::import('ext.phpexcel.PHPExcel', true);
+		spl_autoload_register(array('YiiBase','autoload')); 
+		
+		
         $export = new Export();
         $results = SupItemsNewNoMatch::model()->findAll();
 
+		
+		
+		
         $objPHPExcel = new PHPExcel();
         $objPHPExcel->getProperties()->setCreator(Yii::app()->name)
                 ->setLastModifiedBy(Yii::app()->name);
@@ -84,11 +99,15 @@ class SupNewItemController extends Controller {
             }
         }
 
-        if ($type == 'excel') {
+        if ($type == 'excel') { 
+			error_reporting(E_ALL ^ E_NOTICE);
+			//phpinfo(); die();
             header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment;filename="SupItemsNewNoMatch.xlsx"');
+            header('Content-Disposition: attachment;filename="SupItemsNewNoMatch.xls"');
             header('Cache-Control: max-age=0');
-            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+			//PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+			//ob_end_clean();
             $objWriter->save('php://output');
         } elseif ($type == 'csv') {
             $fileName = 'SupItemsNewNoMatch.csv';
@@ -100,7 +119,8 @@ class SupNewItemController extends Controller {
         }
     }
 
-    public function actionGroupSupChecker($supid) {
+    public function actionGroupSupChecker($supid)
+    {
 
         $model = new SupItemsNewManage('search');
 
@@ -117,7 +137,8 @@ class SupNewItemController extends Controller {
         ));
     }
 
-    public function actionCalculate() {
+    public function actionCalculate()
+    {
 
         $time = time();
 
@@ -136,7 +157,8 @@ class SupNewItemController extends Controller {
         echo time() - $time;
     }
 
-    public function actionSupChecker() {
+    public function actionSupChecker()
+    {
         $request = Yii::app()->request;
         $supplierId = $request->getQuery('supid');
 
@@ -152,49 +174,52 @@ class SupNewItemController extends Controller {
         if ($supplierId)
             $model->sup_id = $supplierId;
 
-
-        if (isset($_POST['ubs_id']) && isset($_POST['checker_id'])) {
-            $checker = SupItemsNewManage::model()->findByPk($_POST['checker_id']);
-            if ($checker != null) {
-                $checker->match_ubs_id = $_POST['ubs_id'];
-                $checker->match_by = Yii::app()->user->id;
-                $checker->save(false);
-            }
-        }
+			
+		if(isset($_POST['ubs_id']) && isset($_POST['checker_id'])) {
+			$checker = SupItemsNewManage::model()->findByPk($_POST['checker_id']);
+			if($checker != null) {
+				$checker->match_ubs_id = $_POST['ubs_id'];
+				$checker->match_by = Yii::app()->user->id;
+				$checker->save(false);
+			}
+		}
         $this->render('supchecker', array(
             'model' => $model,
             'supid' => $supplierId,
             'supplier' => Supplier::model()->findByPk($supplierId),
         ));
     }
-
-    public function actionSupChecker2() {
+    
+    public function actionSupChecker2()
+    {
         $request = Yii::app()->request;
         $supplierId = $request->getQuery('supid');
-
+        
         $this->render('supchecker2', array(
             'supid' => $supplierId,
             'supplier' => Supplier::model()->findByPk($supplierId),
         ));
     }
-
-    public function actionSupChecker3() {
+    
+    public function actionSupChecker3()
+    {
         $request = Yii::app()->request;
         $supplierId = $request->getQuery('supid');
-
+        
         $this->render('supchecker3', array(
             'supid' => $supplierId,
             'supplier' => Supplier::model()->findByPk($supplierId),
         ));
     }
-
-    public function actionGetData3($supplierId) {
+    
+    public function actionGetData3($supplierId)
+    {
         $model = new SupItemsNewManage('search');
         $model->unsetAttributes();  // clear any default values
         $model->sup_id = $supplierId;
         $results = $model->searchSupchecker3();
         $data = '';
-
+        
         $count = count($results[0]->data);
         if ($count > 0) {
             $data .= '{"total":' . $results[1] . ',"rows":[';
@@ -208,7 +233,7 @@ class SupNewItemController extends Controller {
 
                 $ubsSku = !is_null($result->ubsinventory) ? $result->ubsinventory->sku : "";
                 $ubsItemName = !is_null($result->ubsinventory) ? ((strlen($result->ubsinventory->sku_name) > 50) ? "<a href='#' rel='tooltip' title='" . $result->ubsinventory->sku_name . "'>" . substr($result->ubsinventory->sku_name, 0, 50) . "...</a>" : $result->ubsinventory->sku_name) : "";
-                $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='" . $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
+                $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='". $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
                 $supp_mfg_name = (strlen($result->mfg_name) > 20) ? "<a href='#' title='" . $result->mfg_name . "' rel='tooltip'>" . substr($result->mfg_name, 0, 20) . "...</a>" : $result->mfg_name;
                 $ubs_mfg_name = !empty($result->ubsinventory) ? $result->ubsinventory->mfg_title : '';
                 $supp_mpn = $result->mfg_sku;
@@ -216,20 +241,21 @@ class SupNewItemController extends Controller {
                 $supp_upc = $result->upc;
                 $ubs_upc = isset($result->ubsinventory->upc) ? $result->ubsinventory->upc : "";
                 $will_auto_accept = ($result->importStatus != 'Will Import' ? CHtml::link("no", "#", array("rel" => "tooltip", "title" => $result->importStatus)) : "yes");
-                $info = "<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
+                $info ="<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
                 $delete = "<a href='/index.php/supNewItem/delete/391942' title='Delete' class='delete'><img alt='Delete' src='/assets/3a624659/gridview/delete.png'></a>";
 
-                $data .= '{"id": ' . $result->id . ',"matchby" : "' . $matchBy . '", "match" : "' . $match . '", "diff" : "' . $diff . '", "ubs_item_cost" : "' . $ubsItemCost . '", "supp_item_price" : "' . $suppItemPrice . '", "price_diff" : "' . $priceDiff . '",
-                    "ubs_sku" : "' . $ubsSku . '", "ubs_item_name" : "' . $ubsItemName . '", "mfg_part_name" : "' . $mfg_part_name . '", "supp_mfg_name" : "' . $supp_mfg_name . '", "ubs_mfg_name" : "' . $ubs_mfg_name . '", "supp_mpn" : "' . $supp_mpn . '",
-                    "ubs_mpn" : "' . $ubs_mpn . '", "supp_upc" : "' . $supp_upc . '", "ubs_upc" : "' . $ubs_upc . '", "will_auto_accept" : "' . $will_auto_accept . '", "info" : "' . $info . '", "delete" : "' . $delete . '"
+                $data .= '{"id": '.$result->id.',"matchby" : "'.$matchBy.'", "match" : "'. $match .'", "diff" : "'.$diff.'", "ubs_item_cost" : "'.$ubsItemCost.'", "supp_item_price" : "'.$suppItemPrice.'", "price_diff" : "'.$priceDiff.'",
+                    "ubs_sku" : "'.$ubsSku.'", "ubs_item_name" : "'.$ubsItemName.'", "mfg_part_name" : "'.$mfg_part_name.'", "supp_mfg_name" : "'.$supp_mfg_name.'", "ubs_mfg_name" : "'.$ubs_mfg_name.'", "supp_mpn" : "'.$supp_mpn.'",
+                    "ubs_mpn" : "'.$ubs_mpn.'", "supp_upc" : "'.$supp_upc.'", "ubs_upc" : "'.$ubs_upc.'", "will_auto_accept" : "'.$will_auto_accept.'", "info" : "'.$info.'", "delete" : "'.$delete.'"
                 }' . ($key == ($count - 1) ? '' : ',');
             }
             $data .= ']}';
         }
         echo $data;
     }
-
-    public function actionGetData() {
+    
+    public function actionGetData()
+    {
         if (Yii::app()->request->isAjaxRequest) {
             $request = Yii::app()->request;
             $supplierId = $request->getParam('supid');
@@ -253,7 +279,7 @@ class SupNewItemController extends Controller {
 
                     $ubsSku = !is_null($result->ubsinventory) ? $result->ubsinventory->sku : "";
                     $ubsItemName = !is_null($result->ubsinventory) ? ((strlen($result->ubsinventory->sku_name) > 50) ? "<a href='#' rel='tooltip' title='" . $result->ubsinventory->sku_name . "'>" . substr($result->ubsinventory->sku_name, 0, 50) . "...</a>" : $result->ubsinventory->sku_name) : "";
-                    $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='" . $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
+                    $mfg_part_name = (strlen($result->mfg_part_name) > 10) ? "<a href='#' rel='tooltip' title='". $result->mfg_part_name . "'>" . substr($result->mfg_part_name, 0, 10) . "...</a>" : $result->mfg_part_name;
                     $supp_mfg_name = (strlen($result->mfg_name) > 20) ? "<a href='#' title='" . $result->mfg_name . "' rel='tooltip'>" . substr($result->mfg_name, 0, 20) . "...</a>" : $result->mfg_name;
                     $ubs_mfg_name = !empty($result->ubsinventory) ? $result->ubsinventory->mfg_title : '';
                     $supp_mpn = $result->mfg_sku;
@@ -261,17 +287,17 @@ class SupNewItemController extends Controller {
                     $supp_upc = $result->upc;
                     $ubs_upc = isset($result->ubsinventory->upc) ? $result->ubsinventory->upc : "";
                     $will_auto_accept = ($result->importStatus != 'Will Import' ? CHtml::link("no", "#", array("rel" => "tooltip", "title" => $result->importStatus)) : "yes");
-                    $info = "<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
+                    $info ="<a href='#' class='checkernum' :checkid='" . $result->id . "' title='ubs_id = " . (!is_null($result->ubsinventory) ? $result->ubsinventory->id : 0) . ",vims_id = " . $result->id . ",vsku =" . $result->sup_vsku . ",import_id=" . $result->import_routine->id . "' rel='tooltip'>info</a>";
                     $delete = "<a href='/index.php/supNewItem/delete/391942' title='Delete' class='delete'><img alt='Delete' src='/assets/3a624659/gridview/delete.png'></a>";
-
-                    $data .= '{"matchby" : "' . $matchBy . '", "match" : "' . $match . '", "diff" : "' . $diff . '", "ubs_item_cost" : "' . $ubsItemCost . '", "supp_item_price" : "' . $suppItemPrice . '", "price_diff" : "' . $priceDiff . '",
-                        "ubs_sku" : "' . $ubsSku . '", "ubs_item_name" : "' . $ubsItemName . '", "mfg_part_name" : "' . $mfg_part_name . '", "supp_mfg_name" : "' . $supp_mfg_name . '", "ubs_mfg_name" : "' . $ubs_mfg_name . '", "supp_mpn" : "' . $supp_mpn . '",
-                        "ubs_mpn" : "' . $ubs_mpn . '", "supp_upc" : "' . $supp_upc . '", "ubs_upc" : "' . $ubs_upc . '", "will_auto_accept" : "' . $will_auto_accept . '", "info" : "' . $info . '", "delete" : "' . $delete . '"
+                    
+                    $data .= '{"matchby" : "'.$matchBy.'", "match" : "'. $match .'", "diff" : "'.$diff.'", "ubs_item_cost" : "'.$ubsItemCost.'", "supp_item_price" : "'.$suppItemPrice.'", "price_diff" : "'.$priceDiff.'",
+                        "ubs_sku" : "'.$ubsSku.'", "ubs_item_name" : "'.$ubsItemName.'", "mfg_part_name" : "'.$mfg_part_name.'", "supp_mfg_name" : "'.$supp_mfg_name.'", "ubs_mfg_name" : "'.$ubs_mfg_name.'", "supp_mpn" : "'.$supp_mpn.'",
+                        "ubs_mpn" : "'.$ubs_mpn.'", "supp_upc" : "'.$supp_upc.'", "ubs_upc" : "'.$ubs_upc.'", "will_auto_accept" : "'.$will_auto_accept.'", "info" : "'.$info.'", "delete" : "'.$delete.'"
                     }' . ($key == ($count - 1) ? '' : ',');
                 }
                 $data .= ']}';
             } else
-                $data = '
+               $data = '
                     {"total":28,"rows":[
                     {"productid":"FI-SW-01","productname":"Koi","unitcost":10.00,"status":"P","listprice":36.50,"attr1":"Large","itemid":"EST-1"},
                     {"productid":"K9-DL-01","productname":"Dalmation","unitcost":12.00,"status":"P","listprice":18.50,"attr1":"Spotted Adult Female","itemid":"EST-10"},
@@ -290,7 +316,8 @@ class SupNewItemController extends Controller {
         }
     }
 
-    public function actionUpdateStatus($id, $value) {
+    public function actionUpdateStatus($id, $value)
+    {
 
         $newModel = SupItemsNewManage::model()->findByPk($id);
 
@@ -299,7 +326,8 @@ class SupNewItemController extends Controller {
         $newModel->save();
     }
 
-    public function actionUpdatePageY($checkers) {
+    public function actionUpdatePageY($checkers)
+    {
 
         $checkers = explode(',', rtrim($checkers, ','));
 
@@ -313,7 +341,8 @@ class SupNewItemController extends Controller {
         }
     }
 
-    public function actionUpdatePageN($checkers) {
+    public function actionUpdatePageN($checkers)
+    {
 
         $checkers = explode(',', rtrim($checkers, ','));
 
@@ -327,7 +356,8 @@ class SupNewItemController extends Controller {
         }
     }
 
-    public function actionUpdateMatch($id, $value) {
+    public function actionUpdateMatch($id, $value)
+    {
 
         $newModel = SupItemsNewManage::model()->findByPk($id);
 
@@ -347,7 +377,8 @@ class SupNewItemController extends Controller {
         }
     }
 
-    public function actionDeleteAll($id) {
+    public function actionDeleteAll($id)
+    {
         // Get all import id of this supplier
         $cmd = Yii::app()->db->createCommand()
                 ->select('id')
@@ -370,7 +401,8 @@ class SupNewItemController extends Controller {
      * @author jovani
      * @param $id supplier id
      */
-    public function actionDeleteAllNoMatch($id) {
+    public function actionDeleteAllNoMatch($id)
+    {
         SupItemsNewNoMatch::model()->deleteAllByAttributes(array('sup_id' => $id));
 
         $this->redirect(array('noMatch', 'sup_id' => $id));
@@ -382,7 +414,8 @@ class SupNewItemController extends Controller {
      * @author jovani
      * @param $id supplier id
      */
-    public function actionDeleteAllMisMatch($id) {
+    public function actionDeleteAllMisMatch($id)
+    {
         SupItemsNewMisMatch::model()->deleteAllByAttributes(array('sup_id' => $id));
 
         $this->redirect(array('misMatch', 'sup_id' => $id));
@@ -394,7 +427,8 @@ class SupNewItemController extends Controller {
      * @author jovani
      * @param $id supplier id
      */
-    public function actionDeleteAllMarkedAsMisMatch($id) {
+    public function actionDeleteAllMarkedAsMisMatch($id)
+    {
         // Let's just delete from all import routines of this supplier
         // @todo there should only be one routine per supplier
         $cmd = Yii::app()->db->createCommand()
@@ -408,7 +442,8 @@ class SupNewItemController extends Controller {
         $this->redirect(array('supChecker', 'supid' => $id));
     }
 
-    public function actionNewItemLink() {
+    public function actionNewItemLink()
+    {
 
         $model = new SupItemsNewManage('search');
 
@@ -429,7 +464,8 @@ class SupNewItemController extends Controller {
      *
      * @author jovani
      */
-    public function actionNoMatch() {
+    public function actionNoMatch()
+    {
         $request = Yii::app()->request;
         $supplierId = $request->getQuery('sup_id');
         $model = new SupItemsNewNoMatch('search');
@@ -454,7 +490,8 @@ class SupNewItemController extends Controller {
      *
      * @author jovani
      */
-    public function actionMisMatch() {
+    public function actionMisMatch()
+    {
         $request = Yii::app()->request;
         $supplierId = $request->getQuery('sup_id');
         $model = new SupItemsNewMisMatch('search');
@@ -506,7 +543,8 @@ class SupNewItemController extends Controller {
 
 
 
-    public function actionImportedItem() {
+    public function actionImportedItem()
+    {
 
         $model = new SupItemsNewManage('search');
 
@@ -529,7 +567,8 @@ class SupNewItemController extends Controller {
      * 3. The rest of all N should go to mismatch
      * 4. Delete at once
      */
-    public function actionImportpage($checkers) {
+    public function actionImportpage($checkers)
+    {
 
         session_write_close();
 
@@ -725,7 +764,8 @@ class SupNewItemController extends Controller {
         // and after that release the lock...
     }
 
-    public function actionImport() {
+    public function actionImport()
+    {
 
 
 
@@ -832,7 +872,8 @@ class SupNewItemController extends Controller {
      * @param integer $id the ID of the model to be displayed
 
      */
-    public function actionView($id) {
+    public function actionView($id)
+    {
 
         $this->render('view', array(
             'model' => $this->loadModel($id),
@@ -846,7 +887,8 @@ class SupNewItemController extends Controller {
      * If creation is successful, the browser will be redirected to the 'view' page.
 
      */
-    public function actionCreate() {
+    public function actionCreate()
+    {
 
         $model = new SupItemsNewManage;
 
@@ -881,7 +923,8 @@ class SupNewItemController extends Controller {
      * @param integer $id the ID of the model to be updated
 
      */
-    public function actionUpdate($id) {
+    public function actionUpdate($id)
+    {
 
         $model = $this->loadModel($id);
 
@@ -916,7 +959,8 @@ class SupNewItemController extends Controller {
      * @param integer $id the ID of the model to be deleted
 
      */
-    public function actionDelete($id) {
+    public function actionDelete($id)
+    {
 
         if (Yii::app()->request->isPostRequest) {
 
@@ -942,7 +986,8 @@ class SupNewItemController extends Controller {
      * @author jovani
      * @param $id
      */
-    public function actionDeleteNoMatch($id) {
+    public function actionDeleteNoMatch($id)
+    {
         SupItemsNew::model()->deleteByPk($id);
 
         if (!isset($_GET['ajax']))
@@ -954,7 +999,8 @@ class SupNewItemController extends Controller {
      * Lists all models.
 
      */
-    public function actionIndex() {
+    public function actionIndex()
+    {
 
         $dataProvider = new CActiveDataProvider('SupItemsNewManage');
 
@@ -968,7 +1014,8 @@ class SupNewItemController extends Controller {
      * Manages all models.
 
      */
-    public function actionAdmin() {
+    public function actionAdmin()
+    {
 
         $model = new SupItemsNewManage('search');
 
@@ -993,7 +1040,8 @@ class SupNewItemController extends Controller {
      * @param integer the ID of the model to be loaded
 
      */
-    public function loadModel($id) {
+    public function loadModel($id)
+    {
 
         $model = SupItemsNewManage::model()->findByPk($id);
 
@@ -1010,7 +1058,8 @@ class SupNewItemController extends Controller {
      * @param CModel the model to be validated
 
      */
-    protected function performAjaxValidation($model) {
+    protected function performAjaxValidation($model)
+    {
 
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'sup-new-item-form') {
 

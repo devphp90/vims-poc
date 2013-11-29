@@ -54,7 +54,7 @@ class ImportBufferRuleController extends Controller
 
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
 
-				'actions'=>array('create','update','admin','delete','index','view', 'statusToggle'),
+				'actions'=>array('create','update','admin','delete','index','view', 'statusToggle','updateAll'),
 
 				'users'=>array('@'),
 
@@ -72,6 +72,55 @@ class ImportBufferRuleController extends Controller
 
 	}
 
+	public function actionUpdateAll()
+	{
+		$command = Yii::app()->db->createCommand('UPDATE `vims_sup_inventory` as t1 SET t1.gbuffer_c = 0, t1.sbuffer_c = 0, t1.ibuffer_c = 0, t1.buffer_c = 0;');
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand('UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty` from  `vims_import_buffer_rule` where STATUS =1) as t2 SET t1.gbuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to`;');
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand('UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty`, `sup_id` from  `vims_import_sup_buffer_rule` where STATUS =1) as t2 SET t1.sbuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to` and t1.sup_id = t2.sup_id;');
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand('UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty`, `sup_id`, `ubs_id` from  `vims_import_sup_item_buffer_rule` where STATUS =1) as t2 SET t1.ibuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to` and t1.sup_id = t2.sup_id and t1.ubs_id = t2.ubs_id;');
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand('UPDATE `vims_sup_inventory` SET `buffer_c` = CASE WHEN ibuffer_c != 0 THEN `ibuffer_c` WHEN sbuffer_c != 0 THEN `sbuffer_c` ELSE `gbuffer_c` END, `sup_bqoh_c` = `qty_total_c` + `buffer_c`,
+ `sup_vqoh_c` = `sup_bqoh_c` + `sup_open_order` where (gbuffer_c+ibuffer_c+sbuffer_c) !=0;');
+		$command->execute();
+		
+		$this->redirect('admin');
+		
+		
+		
+		
+/* 
+UPDATE `vims_sup_inventory` as t1 SET t1.gbuffer_c = 0, t1.sbuffer_c = 0, t1.ibuffer_c = 0, t1.buffer_c = 0;# set all to 0
+#50k rows 1.x secs
+
+#update global rules
+UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty` from  `vims_import_buffer_rule` where STATUS =1) as t2 SET t1.gbuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to`;
+#2.1	 
+
+#update supplier qty rules
+UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty`, `sup_id` from  `vims_import_sup_buffer_rule` where STATUS =1) as t2 SET t1.sbuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to` and t1.sup_id = t2.sup_id;
+
+#update item rules
+UPDATE `vims_sup_inventory` as t1, (SELECT `from`,`to`, `qty`, `sup_id`, `ubs_id` from  `vims_import_sup_item_buffer_rule` where STATUS =1) as t2 SET t1.ibuffer_c = t2.qty where t1.sup_price >= t2.`from` AND t1.sup_price <=  t2.`to` and t1.sup_id = t2.sup_id and t1.ubs_id = t2.ubs_id;
+
+#update final buffer
+UPDATE `vims_sup_inventory` SET `buffer_c` = CASE
+    WHEN ibuffer_c != 0 THEN `ibuffer_c`
+    WHEN sbuffer_c != 0 THEN `sbuffer_c`
+    ELSE `gbuffer_c`
+    END,
+    `sup_bqoh_c` = `qty_total_c` + `buffer_c`,
+    `sup_vqoh_c` = `sup_bqoh_c` + `sup_open_order`
+   where (gbuffer_c+ibuffer_c+sbuffer_c) !=0;
+*/
+		
+	}
 
 
 	/**

@@ -38,16 +38,14 @@ $('.search-form form').submit(function(){
 	'filter'=>$model,
 	'columns'=>array(
 		'id',
+		'name',
 		'username',
-		'password',
 		'create_time',
 		'last_login',
-		/*
-		'name',
 		'email',
-		*/
+		
 		array(
-			'class'=>'CButtonColumn',
+			'class'=>'bootstrap.widgets.TbButtonColumn',
 		),
 	),
 )); ?>

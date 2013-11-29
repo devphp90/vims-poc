@@ -26,12 +26,12 @@ class UbsProductStatusController extends Controller
 	public function accessRules()
 	{
 		return array(
+			
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update', 'index','view', 'delete'),
+				'actions'=>array('create','update','index','view','admin','delete'),
 				'users'=>array('@'),
 			),
-
-
+			
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -121,14 +121,7 @@ class UbsProductStatusController extends Controller
 	 */
 	public function actionIndex()
 	{
-        $model=new UbsProductStatus('search');
-        $model->unsetAttributes();  // clear any default values
-        if(isset($_GET['UbsProductStatus']))
-            $model->attributes=$_GET['UbsProductStatus'];
-
-        $this->render('admin',array(
-            'model'=>$model,
-        ));
+		$this->actionAdmin();
 	}
 
 	/**

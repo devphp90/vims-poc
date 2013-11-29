@@ -63,6 +63,13 @@ class Supplier extends CActiveRecord {
             array('id, name, loc_id, rating, ubs_act_exec , active', 'safe', 'on' => 'search'),
         );
     }
+	
+	protected function beforeSave()
+	{
+		$this->update_by = Yii::app()->user->id;
+		$this->update_time = date('Y-m-d H:i:s');
+		return parent::beforeSave();
+	}
 
     /**
      * @return array relational rules.
@@ -115,6 +122,32 @@ class Supplier extends CActiveRecord {
     public function setUbsSupplierName($name) {
         $this->_ubsSupplierName = $name;
     }
+	
+	public function getAgoTime()
+	{
+		if($this->scenario =="search" || $this->update_time == '0000-00-00 00:00:00' || empty($this->update_time))
+			return "";
+		return $this->humanTiming(strtotime($this->update_time)). " ago";
+	}	
+	
+	public function humanTiming ($time)
+	{
+		$time = time() - $time; // to get the time since that moment
+		$tokens = array (
+			31536000 => 'year',
+			2592000 => 'month',
+			604800 => 'week',
+			86400 => 'day',
+			3600 => 'hour',
+			60 => 'minute',
+			1 => 'second'
+		);
+		foreach ($tokens as $unit => $text) {
+			if ($time < $unit) continue;
+			$numberOfUnits = floor($time / $unit);
+			return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+		}
+	}
 
     public function searchNotScheduled() {
         $criteria = new CDbCriteria;
@@ -141,35 +174,38 @@ class Supplier extends CActiveRecord {
 							JOIN {{tabs}} tabs on tabs.supplier_id = t.id and tabs.import_routine_id = ir.id
 		";
 
-        $criteria->addCondition("(ir.frequency = '' OR ir.frequency is null)");
+        $criteria->addCondition("(ir.frequency = '' OR ir.frequency is null OR ir.frequency = 0)");
         return new CActiveDataProvider(get_class($this), array(
                     'criteria' => $criteria,
                     'sort' => array(
-                        'defaultOrder' => 'update_time DESC',
+                        'defaultOrder' => 'setup_status DESC, update_time DESC',
                     )
                 ));
     }
 
     public function afterSave() {
-        // if($this->active == 0){
-        // 	//UPDATE persondata SET ageage=age+1;
-        // 	$sql = "update vims_sup_inventory set sup_status=0 where sup_id=:sup_id";
-        // 	$command=Yii::app()->db->createCommand($sql);
-        // 	$command->bindParam(":sup_id",$this->id,PDO::PARAM_INT);
-        // 	//$rowCount = $command->query();
-        // 	//UPDATE persondata SET ageage=age+1;
-        // 	$sql = "update vims_import_routine set status=0 where sup_id=:sup_id";
-        // 	$command=Yii::app()->db->createCommand($sql);
-        // 	$command->bindParam(":sup_id",$this->id,PDO::PARAM_INT);
-        // 	//$rowCount = $command->query();
-        // }
-        // $models = UbsInventory::model()->findAllByAttributes(array('primary_supplier_c'=>$this->id));
-        // if($models != null)
-        // {
-        // 	foreach($models as $id=> $model){
-        // 		$model->save(false);
-        // 	}
-        // }
+        if($this->active == 0){
+         //UPDATE persondata SET ageage=age+1;
+         $sup_id = $this->id;
+         $sql = "update vims_sup_inventory set sup_status=0 where sup_id=:sup_id";
+         $command=Yii::app()->db->createCommand($sql);
+         $command->bindParam(":sup_id",$sup_id,PDO::PARAM_INT);
+         //$rowCount = $command->query();
+         //UPDATE persondata SET ageage=age+1;
+         $sql = "update vims_import_routine set status=0 where sup_id=:sup_id";
+         $command=Yii::app()->db->createCommand($sql);
+         $command->bindParam(":sup_id",$sup_id,PDO::PARAM_INT);
+         //$rowCount = $command->query();
+		                  $models = UbsInventory::model()->findAllByAttributes(array('primary_supplier_c'=>$this->id));
+	        if($models != null)
+	        {
+	         foreach($models as $id=> $model){
+	           $model->save(false);
+	         }
+	        }
+        }
+        
+
     }
 
     /**
@@ -221,6 +257,10 @@ class Supplier extends CActiveRecord {
 
         return new CActiveDataProvider(get_class($this), array(
                     'criteria' => $criteria,
+					'sort'=>array(
+						'defaultOrder'=>'setup_status DESC',
+					  )
+
                 ));
     }
 

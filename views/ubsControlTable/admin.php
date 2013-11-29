@@ -42,10 +42,10 @@ $('.search-form form').submit(function(){
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'TableId',
-		'TableName',
-		'Status',
-		'DateLastUpdate',
+		'tableid',
+		'tablename',
+		'lstatus',
+		'datelastupdate',
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
 		),

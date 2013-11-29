@@ -1,5 +1,5 @@
 <div class="form-row">
-    <?php echo $form->labelEx($model, 'from_email'); ?>
+    <?php //echo $form->labelEx($model, 'from_email'); ?>
     <?php
     $this->widget('application.extensions.editor.CKkceditor', array(
         "model" => $supplierModel, # Data-Model

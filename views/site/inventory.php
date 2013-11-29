@@ -20,20 +20,12 @@
 }
 
 .auto-style14 {
-	background-color: #FFFF00;
+	background-color: #FF0000;
 	color: #000000;
 }
 
 .auto-style15 {
 	background-color: #00FF00;
-}
-
-.auto-style16 {
-	background-color: #FFFFFF;
-}
-
-.auto-style17 {
-	background-color: #FF0000;
 }
 
 </style>
@@ -43,7 +35,7 @@
 
 <p>To begin, please <?php echo CHtml::link("Login", array('site/Login')); ?></p>
 
-<p>Last update: 09/12/2013, 08:00 AM PST</p>
+<p>Last update: 11/19/2013, 11:00 AM PST</p>
 
 <?php } else { ?>
 
@@ -57,46 +49,47 @@
 
 
 <span class="auto-style1"><strong>System Status and Notes</strong></span><br>
-<br><strong>09/12/2013:</strong><br>VIMS is under construction and alpha1
-testing.<br><span class="auto-style13">Parts of VIMS are </span>
-<span class="auto-style14">DOWN</span>.&nbsp;Manual Import/Update
-routine is UP.<br>Manual Update routine is UP.&nbsp;Auto Import/Update is
+<br><strong>11/19/2013:</strong><br>VIMS is under construction POC and alpha1.<br><span class="auto-style13">Parts of VIMS are 
+in progress, incomplete, or </span>
+<span class="auto-style14">DOWN</span>.<br>Auto Import/Update is
 <span class="auto-style15">
-<span class="auto-style17">DOWN</span></span>.<br>InBound/OutBound Data ODBC test is
-<span class="auto-style17">DOWN</span>.<br><br>NOTE:&nbsp; Only Chrome browser is supported at this time.<br><br>
-WIP, 9/09-9/15/2013:<br>All User Stories and Business Requirements are in
-alpha1 unless otherwise noted below.<br>Alpha1 quick testing (on going).<br>UBS
+UP</span>.<br><br>NOTES:<br><br>Only Chrome browser is supported at this time.<br>
+<br>For Email Attachment Supplier:&nbsp; <a href="mailto:vims.ubs@gmail.com">vims.ubs@gmail.com</a><br>
+<br>For Copy n Paste Supplier, the practical limit is &lt;1000 rows<br><br>
+WIP, 11/18-11/24/2013:<br>All User Stories and Business Requirements are in POC 
+or
+alpha1.<br>POC quick testing (on going).<br>UBS
 is testing business rules, logic, and calculations.&nbsp; Primary Supplier
-designation, Rules, Price and Qty calcs.<br>
-<p class="auto-style16">UBS Items seed from CSV file</p>
-<p class="auto-style16">Bradley seed and test</p>
-<p>&nbsp;</p>
-<br>
+designation, Rules, Price and Qty calcs.
+<br/><br/><hr>
+
 <?php
 echo CHtml::link("UBS Items Seed Routine", Yii::app()->createUrl('/ubsItemsSync'));
-?><br/><br/>
+?>
+<br/>
+UBS Items seed
+(for AXEO use only)
+<br/><br/>
 <?php
-echo CHtml::link("Supplier Items Seed Routine - Bradley only", Yii::app()->createUrl('supItemsSync'));
+echo CHtml::link("Supplier Items Seed Routine", Yii::app()->createUrl('supItemsSync'));
 //echo CHtml::link("Supplier Items Import and Sync", Yii::app()->createUrl('/supInventory/importSeedSheet'));
 ?>
-
-<hr class="hr-darkred"><br><br>
+<br/>
+Supplier Items Seed Routine
+(for AXEO use only)
+<br><br>
 <?php } ?>
 <?php echo CHtml::link("Seed UBS Items",'/seed/ubsItems',array('target'=>'_blank'))?>
-<br>http://vims.axeo.net/index.php/seed/ubsItems
+<br><a href="http://vims.axeo.net/index.php/seed/ubsItems">http://vims.axeo.net/index.php/seed/ubsItems</a> 
+(for AXEO use only)
 <br><br>
 
-<?php echo CHtml::link("Database",'/pHpmYaDmIn',array('target'=>'_blank'))?>
+<a target="_blank" href="http://vimsln.axeo.net/pHpmYaDmIn/">Database</a>
 <br>
 View DB with phpMyAdmin.
 <br>
-
-
-<hr class="hr-darkred"><span class="auto-style1"><strong>Menu: see top of page
-main menu also.</strong></span><br>
-
 <br>
-<?php echo CHtml::link("Sup Failed Import Reasons", array('/supFailedImportReasons/admin'));?>
+<?php echo CHtml::link("Supplier Failed Import Reasons", array('/supFailedImportReasons/admin'));?>
 <br><br>
 Users:
 <?php echo CHtml::link("Manage Users",array('/User/admin'));?>

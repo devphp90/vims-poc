@@ -4,7 +4,8 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'Create ','url'=>array('create')),
+	array('label'=>'Create UbsProductStatus','url'=>array('create')),
+	array('label'=>'Manage UbsProductStatus','url'=>array('admin')),
 );
 ?>
 

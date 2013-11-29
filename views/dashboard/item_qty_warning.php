@@ -91,7 +91,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
             'type' => 'raw',
             'header' => 'Supplier Name',
             'filter' => CHtml::activeTextField($model, 'supplier_name'),
-            'value' => 'CHtml::link($data->importRoutine->supplier->name, Yii::app()->controller->createUrl("tabs/update", array("id" => $data->importRoutine->supplier->tabs->id)))'
+            'value' => 'isset($data->importRoutine->supplier)? CHtml::link($data->importRoutine->supplier->name, Yii::app()->controller->createUrl("tabs/update", array("id" => $data->importRoutine->supplier->tabs->id))): ""'
         ),
         'sup_vsku',
         'mfg_sku',
@@ -123,7 +123,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         array(
             'header' => 'User Item Status',
             'type' => 'raw',
-            'value' => 'CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id))',
+            'value' => 'isset($data->suppItem) ? CHtml::link($data->suppItem->item_status?"Active":"Inactive", "#", array("class" =>"status", "data-id" => $data->suppItem->id)): ""',
         //'value'=>'CHtml::dropdownlist("sup_status",$data->suppItem->sup_status,array(1=>"InStock", 0=>"BackOrdered", 3=>"Missing", 2=>"Discontinued"),array("class"=>"span2 editdropdown","data-id"=>$data->suppItem->id))',
         ),
         array(

@@ -5,7 +5,8 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'List ','url'=>array('index')),
+	//array('label'=>'List UbsProductStatus','url'=>array('index')),
+	array('label'=>'Manage','url'=>array('admin')),
 );
 ?>
 

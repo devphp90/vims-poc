@@ -16,6 +16,7 @@ $this->menu=array(
 			'data-target'=>'#myModal',
 		),
 	),
+	array('label'=>'Update DB After Rule Change', 'url'=>array('updateAll')),
 );
 
 Yii::app()->clientScript->registerScript('search', "

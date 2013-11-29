@@ -1,5 +1,5 @@
-<div class="view">
-
+<div class="view">
+
 	<b><?php echo CHtml::encode($data->getAttributeLabel('SupplierId')); ?>:</b>
 	<?php echo CHtml::link(CHtml::encode($data->SupplierId),array('view','id'=>$data->SupplierId)); ?>
 	<br />
@@ -54,5 +54,5 @@
 	<br />
 
 	*/ ?>
-
+
 </div>

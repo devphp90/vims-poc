@@ -7,6 +7,8 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
+	<?php echo $form->textFieldRow($model,'SupplierID',array('class'=>'span5','maxlength'=>200)); ?>
+	
 	<?php echo $form->textFieldRow($model,'SupplierName',array('class'=>'span5','maxlength'=>200)); ?>
 
 	<?php echo $form->textFieldRow($model,'Address1',array('class'=>'span5','maxlength'=>50)); ?>
@@ -35,7 +37,6 @@
 
 	<?php echo $form->textFieldRow($model,'Phone_2',array('class'=>'span5','maxlength'=>50)); ?>
 
-	<?php echo $form->textFieldRow($model,'TimeStamp',array('class'=>'span5')); ?>
 
 	<?php echo $form->textFieldRow($model,'Phone2',array('class'=>'span5','maxlength'=>50)); ?>
 

@@ -24,7 +24,7 @@ class SupFailedImportReasons extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'sup_failed_import_reasons';
+		return 'vims_supplier_failed_import_reasons';
 	}
 
 	/**

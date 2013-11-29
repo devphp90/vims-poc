@@ -72,7 +72,20 @@ class ImportWarnitemPrice extends CActiveRecord
 			'importRoutine' => array(self::BELONGS_TO, 'ImportRoutine', 'import_id' , 'together'=>true),
 		);
 	}
-
+	public function getSuppItem()
+	{
+		return SupInventory::model()->findByAttributes(
+			array(
+				'sup_id' => isset($this->importRoutine->sup_id) ? $this->importRoutine->sup_id : '',
+				'sup_vsku' => $this->sup_vsku,
+			)
+		);
+	}
+	
+	public function getTabs() 
+	{
+		return Tabs::model()->findByAttributes(array('supplier_id' => isset($this->importRoutine->sup_id) ? $this->importRoutine->sup_id : ''));
+	}
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */

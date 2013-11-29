@@ -14,6 +14,10 @@ class Update
 
 	private $_dbcommand;
 	
+	private function dev($message) {
+		echo $message. "<br/>";
+	}
+	
 	
 	function __construct($tabid)
 	{
@@ -26,6 +30,7 @@ class Update
 	
 	public function init($tabid)
 	{
+		$this->dev("Find tabsModel");
 		$this->_tabsModel = Tabs::model()->find(array(
 			'condition'=>'t.id=:id',
 			'params'=>array(
@@ -42,10 +47,13 @@ class Update
 				),
 			),
 		));	
+		
 
 
 		if($this->_tabsModel == null)
 			throw new CHttpException('500','Can\'t find Tabs id.');
+			
+		$this->dev("TabModel found".$this->_tabsModel->id);
 		
 		$this->_updateLogModel = new TabsUpdateLog;
 		
@@ -793,7 +801,7 @@ for($a=1;$a<=6;$a++):
 			));
 
 			$importVsheets = $dataProvider_1->getData();
-			foreach($dropItem as $id=>$supitem):
+			foreach($importVsheets as $id=>$supitem):
 				$supitem->sup_drop = 1;
 				$this->_updateLogModel->drop_items .= 'Sup vSKU:'.$supitem->sup_vsku.'<br/>';
 				$this->_updateLogModel->saveCounters(array('drop_items'=>1));

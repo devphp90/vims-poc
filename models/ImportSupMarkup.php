@@ -102,8 +102,11 @@ class ImportSupMarkup extends CActiveRecord
 
 	public function afterFind()
 	{
-
-		$this->supplier_name = Supplier::model()->findByPk($this->sup_id)->name;
+		$supModel = Supplier::model()->findByPk($this->sup_id);
+		if($supModel != null)
+			$this->supplier_name = $supModel->name;
+		else
+			$this->supplier_name = '';
 	}
 
 	public function beforeValidate()

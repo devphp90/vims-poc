@@ -153,7 +153,7 @@ class ImportWarnitemPriceController extends Controller
 		if(isset($_GET['ImportWarnitemPrice']))
 			$model->attributes=$_GET['ImportWarnitemPrice'];
 
-		$this->render('admin',array(
+		$this->render('//dashboard/price_item_warning',array(
 			'model'=>$model,
 		));
 	}

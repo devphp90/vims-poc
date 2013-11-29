@@ -8,106 +8,118 @@
  * @property integer $import_id
  * @property string $data
  */
-class SupItemsNewNoMatch extends CActiveRecord {
+class SupItemsNewNoMatch extends CActiveRecord
+{
+	public $testvalue = 0,$testvalue1 = 0,$testvalue2 = 0;
+	public $match_by_status = array(
+    self::MATCH_VSKU=>'vSKU',
+    self::MATCH_MPN_UPC_NAME=>'MPN+UPC+Nam',
+    self::MATCH_MPN_UPC=>'MPN+UPC',
+    self::MATCH_MPN_NAME=>'MPN+Nam',
+    self::MATCH_UPC=>'UPC',
+    self::MATCH_MPN=>'MPN'
+  );
+	public $showData = array();
+	public $showColumn = array();
+	public $sup_id;
+	public $statusList = array('Undecide','Imported','No Import');
+	public $price_diff;
+	public $match = 2;
+	public $percent_diff;
+	public $match_by;
+	public $importStatus = 'Will Import';
+	public $isCalculated = 0;
+	public $ubs_sku;
 
-    public $testvalue = 0, $testvalue1 = 0, $testvalue2 = 0;
-    public $match_by_status = array(
-        self::MATCH_VSKU => 'vSKU',
-        self::MATCH_MPN_UPC_NAME => 'MPN+UPC+Nam',
-        self::MATCH_MPN_UPC => 'MPN+UPC',
-        self::MATCH_MPN_NAME => 'MPN+Nam',
-        self::MATCH_UPC => 'UPC',
-        self::MATCH_MPN => 'MPN'
+  const MATCH_VSKU     = 1;
+  const MATCH_MPN_UPC_NAME = 6;
+  const MATCH_MPN_UPC  = 2;
+  const MATCH_MPN_NAME = 3;
+  const MATCH_UPC      = 5;
+  const MATCH_MPN      = 4;
+
+  const MATCH_STATUS_YES       = 1;
+  const MATCH_STATUS_NO        = 0;
+  const MATCH_STATUS_MISMATCH  = 3;
+  const MATCH_STATUS_UNDECIDED = 2;
+
+  public $supplierName;
+
+	/**
+	 * Returns the static model of the specified AR class.
+	 * @return SupNewItem4 the static model class
+	 */
+	public static function model($className=__CLASS__)
+	{
+		return parent::model($className);
+	}
+
+	/**
+	 * @return string the associated database table name
+	 */
+	public function tableName()
+	{
+		return '{{sup_items_new_no_match}}';
+	}
+	
+	public function unserializeData()
+	{
+		
+		$this->showData = unserialize( base64_decode($this->data));
+		$this->showColumn = unserialize($this->column);
+	}
+	/**
+	 * @return array validation rules for model attributes.
+	 */
+	public function rules()
+	{
+		// NOTE: you should only define rules for those attributes that
+		// will receive user inputs.
+    return array(
+      array('id, ubs_id, sup_id,supplierName, sup_sku, sup_sku_name, sup_description, ubs_sku,sup_price, sup_vsku, sup_vqoh, sup_status, mfg_sku, mfg_sku_plain, mfg_name, mfg_sku_name, mfg_upc, last_update, create_by, update_by, create_time, update_time, priceFrom, priceTo, mpnFrom, mpnTo', 'safe'),
     );
-    public $showData = array();
-    public $showColumn = array();
-    public $sup_id;
-    public $statusList = array('Undecide', 'Imported', 'No Import');
-    public $price_diff;
-    public $match = 2;
-    public $percent_diff;
-    public $match_by;
-    public $importStatus = 'Will Import';
-    public $isCalculated = 0;
-    public $ubs_sku;
+	}
 
-    const MATCH_VSKU = 1;
-    const MATCH_MPN_UPC_NAME = 6;
-    const MATCH_MPN_UPC = 2;
-    const MATCH_MPN_NAME = 3;
-    const MATCH_UPC = 5;
-    const MATCH_MPN = 4;
-    const MATCH_STATUS_YES = 1;
-    const MATCH_STATUS_NO = 0;
-    const MATCH_STATUS_MISMATCH = 3;
-    const MATCH_STATUS_UNDECIDED = 2;
+	/**
+	 * @return array relational rules.
+	 */
+	public function relations()
+	{
+		// NOTE: you may need to adjust the relation name and the related
+		// class name for the relations automatically generated below.
+    return array(
+      'supplier' => array(self::BELONGS_TO, 'Supplier', 'sup_id'),
+      'ubs_inventory' => array(self::BELONGS_TO, 'UbsInventory', 'ubs_id'),
+      // coz i dont like the naming above. :D
+      'ubsInventory' => array(self::BELONGS_TO, 'UbsInventory', 'ubs_id'),
+      'create_user' => array(self::BELONGS_TO, 'User', 'create_by'),
+      'update_user' => array(self::BELONGS_TO, 'User', 'update_by'),
+      'warehouse1' => array(self::HAS_ONE, 'SupWarehouse', array('sup_id' => 'sup_id')),
+    );
+	}
 
-    public $supplierName;
-
-    /**
-     * Returns the static model of the specified AR class.
-     * @return SupNewItem4 the static model class
-     */
-    public static function model($className = __CLASS__) {
-        return parent::model($className);
-    }
-
-    /**
-     * @return string the associated database table name
-     */
-    public function tableName() {
-        return '{{sup_items_new_no_match}}';
-    }
-
-    public function unserializeData() {
-
-        $this->showData = unserialize(base64_decode($this->data));
-        $this->showColumn = unserialize($this->column);
-    }
-
-    /**
-     * @return array validation rules for model attributes.
-     */
-    public function rules() {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
-        return array(
-            array('id, ubs_id, sup_id,supplierName, sup_sku, sup_sku_name, sup_description, ubs_sku,sup_price, sup_vsku, sup_vqoh, sup_status, mfg_sku, mfg_sku_plain, mfg_name, mfg_sku_name, mfg_upc, last_update, create_by, update_by, create_time, update_time, priceFrom, priceTo, mpnFrom, mpnTo', 'safe'),
-        );
-    }
-
-    /**
-     * @return array relational rules.
-     */
-    public function relations() {
-        // NOTE: you may need to adjust the relation name and the related
-        // class name for the relations automatically generated below.
-        return array(
-            'supplier' => array(self::BELONGS_TO, 'Supplier', 'sup_id'),
-            'ubs_inventory' => array(self::BELONGS_TO, 'UbsInventory', 'ubs_id'),
-            // coz i dont like the naming above. :D
-            'ubsInventory' => array(self::BELONGS_TO, 'UbsInventory', 'ubs_id'),
-            'create_user' => array(self::BELONGS_TO, 'User', 'create_by'),
-            'update_user' => array(self::BELONGS_TO, 'User', 'update_by'),
-            'warehouse1' => array(self::HAS_ONE, 'SupWarehouse', array('sup_id' => 'sup_id')),
-        );
-    }
-
-    /**
-     * @return array customized attribute labels (name=>label)
-     */
-    public function attributeLabels() {
-        return array(
-            'id' => 'ID',
-            'import_id' => 'Import',
-            'data' => 'Data',
-            'mfg_sku' => 'MPN',
-            'upc' => 'UPC',
-            'sup_sku' => 'Sup SKU',
-            'sup_vsku' => 'Sup vSKU',
-            'sup_sku_name' => 'Sup Item Name',
-        );
-    }
+	/**
+	 * @return array customized attribute labels (name=>label)
+	 */
+	public function attributeLabels()
+	{
+		return array(
+			'id' => 'ID',
+			'import_id' => 'Import',
+			'data' => 'Data',
+			'mfg_sku'=>'MPN',
+			'upc'=>'UPC',
+			'sup_sku'=>'Sup SKU',
+			'sup_vsku'=>'Sup vSKU',
+			'sup_sku_name'=>'Sup Item Name',
+		);
+	}
+	
+	public function getTabs() 
+	{
+		return Tabs::model()->findByAttributes(array('supplier_id' => $this->sup_id));
+	}
+	
 
 //	public function afterSave()
 //	{
@@ -119,90 +131,101 @@ class SupItemsNewNoMatch extends CActiveRecord {
 //		}
 //	}
 
-    public function afterFind() {
+	public function afterFind()
+	{
+		
+		switch($this->match_by){
+			case 0:
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			default:
+		}
+		if(Yii::app()->controller->action->id == 'newItemLink'){
+			if($this->match_by != ''){
+				$model = new SupInventory;
+				$model->sup_vsku = $this->sup_vsku;
+				$model->mfg_sku = $this->mfg_sku;
+				$model->mfg_upc = $this->upc;
+				$model->mfg_name = $this->mfg_name;
+				$model->mfg_sku_name = $this->mfg_part_name;
+				$model->sup_sku = $this->sup_sku;
+				$model->sup_sku_name = $this->sup_sku_name;
+				$model->sup_description = $this->sup_description;
+				$model->sup_id = $this->import_routine->sup_id;
+				$model->ubs_id = $this->ubsinventory->id;
+				$model->sup_status = 1;
+				$model->supplier_name = $this->import_routine->supplier->name;
+				if(!$model->validate()){
+					$this->importStatus = '';
+					$i=1;
+					foreach($model->getErrors() as $attribute=>$reason)
+						$this->importStatus .= $i++.'. '.$attribute.'=>'.implode(',', $reason).'     ';
+					
+				}
+			}else
+				$this->importStatus = 'No Match will not import!';
 
-        switch ($this->match_by) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-        }
-        if (Yii::app()->controller->action->id == 'newItemLink') {
-            if ($this->match_by != '') {
-                $model = new SupInventory;
-                $model->sup_vsku = $this->sup_vsku;
-                $model->mfg_sku = $this->mfg_sku;
-                $model->mfg_upc = $this->upc;
-                $model->mfg_name = $this->mfg_name;
-                $model->mfg_sku_name = $this->mfg_part_name;
-                $model->sup_sku = $this->sup_sku;
-                $model->sup_sku_name = $this->sup_sku_name;
-                $model->sup_description = $this->sup_description;
-                $model->sup_id = $this->import_routine->sup_id;
-                $model->ubs_id = $this->ubsinventory->id;
-                $model->sup_status = 1;
-                $model->supplier_name = $this->import_routine->supplier->name;
-                if (!$model->validate()) {
-                    $this->importStatus = '';
-                    $i = 1;
-                    foreach ($model->getErrors() as $attribute => $reason)
-                        $this->importStatus .= $i++ . '. ' . $attribute . '=>' . implode(',', $reason) . '     ';
-                }
-            }else
-                $this->importStatus = 'No Match will not import!';
-        }
+		}
+		
+
+
+
+	}
+	
+	
+	public function showData()
+	{
+		$this->unserializeData();
+		foreach($this->showData as $id=>$value){
+			if($id > 2){
+				echo '...';
+				break;
+				
+			}
+				
+			echo $this->showColumn[$id],': ';
+			echo $value;
+			echo '<br/>';
+			
+		}
+
+	}
+
+	/**
+	 * Retrieves a list of models based on the current search/filter conditions.
+	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 */
+  public function search() {
+    $criteria = new CDbCriteria;
+
+    $criteria->with = 'supplier';
+    $criteria->compare('sup_id', $this->sup_id);
+
+    if (strpos($this->supplierName, '*') !== false) {
+      $supplierName = str_replace('*', '%', $this->supplierName);
+      $criteria->addCondition("supplier.name LIKE '{$supplierName}'");
+    } else {
+      $criteria->compare('supplier.name', $this->supplierName);
     }
 
-    public function showData() {
-        $this->unserializeData();
-        foreach ($this->showData as $id => $value) {
-            if ($id > 2) {
-                echo '...';
-                break;
-            }
-
-            echo $this->showColumn[$id], ': ';
-            echo $value;
-            echo '<br/>';
-        }
-    }
-
-    /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-     */
-    public function search() {
-        $criteria = new CDbCriteria;
-
-        $criteria->with = 'supplier';
-        $criteria->compare('sup_id', $this->sup_id);
-
-        if (strpos($this->supplierName, '*') !== false) {
-            $supplierName = str_replace('*', '%', $this->supplierName);
-            $criteria->addCondition("supplier.name LIKE '{$supplierName}'");
-        } else {
-            $criteria->compare('supplier.name', $this->supplierName);
-        }
-
-        return new CActiveDataProvider($this, array(
-                    'criteria' => $criteria,
-                    'pagination' => array('pageSize' => 10),
-                    'sort' => array(
-                        'defaultOrder' => 'supplier.name',
-                        'attributes' => array(
-                            'supplierName' => array(
-                                'asc' => 'supplier.name',
-                                'desc' => 'supplier.name DESC',
-                            ),
-                            '*'
-                        ),
-                    ),
-                ));
-    }
-
+    return new CActiveDataProvider($this, array(
+      'criteria'=>$criteria,
+      'pagination' => array('pageSize' => 10),
+      'sort'=>array(
+        'defaultOrder'=>'supplier.name',
+        'attributes' => array(
+          'supplierName' => array(
+            'asc'  => 'supplier.name',
+            'desc' => 'supplier.name DESC',
+          ),
+          '*'
+        ),
+      ),
+    ));
+  }
 }

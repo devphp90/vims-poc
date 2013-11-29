@@ -28,7 +28,7 @@ class ImportMarkupController extends Controller
 		return array(
 
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','admin','delete','index','view', 'statusToggle'),
+				'actions'=>array('create','update','admin','delete','index','view', 'statusToggle','updateAll'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -37,6 +37,36 @@ class ImportMarkupController extends Controller
 		);
 	}
 
+	public function actionUpdateAll()
+	{
+		$command = Yii::app()->db->createCommand('UPDATE `vims_ubs_inventory` as t1 SET t1.gmarkup_c = NULL, t1.smarkup_c = NULL, t1.smarkupbreak_c = 0, markup_c = 0, markupprice_c = 0;');
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand("UPDATE `vims_ubs_inventory` as t1, (SELECT `from`,`to`, `markup`, `type` from  `vims_import_markup` where STATUS =1) as t2 SET t1.gmarkup_c = concat(t2.markup, if(t2.type, '%', '$')) where t1.vprice >= t2.`from` AND t1.vprice <=  t2.`to`;");
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand("UPDATE `vims_ubs_inventory` as t1, (SELECT `from`,`to`, `markup`, `type`, `sup_id`, `break_map` from  `vims_import_sup_markup` where STATUS =1) as t2 SET t1.smarkup_c = concat(t2.markup, if(t2.type, '%', '$')), t1.smarkupbreak_c = t2.break_map where t1.vprice >= t2.`from` AND t1.vprice <=  t2.`to` and t1.`primary_supplier_c` = t2.`sup_id`");
+		$command->execute();
+		
+		$command = Yii::app()->db->createCommand("UPDATE `vims_ubs_inventory` SET `applymarkup_c` = CASE WHEN `smarkup_c` is not null THEN `smarkup_c` ELSE `gmarkup_c` END, `markup_c` =  ROUND(IF( RIGHT( applymarkup_c, 1 ) =  '%',  (
+REPLACE( applymarkup_c, RIGHT( applymarkup_c, 1 ) ,  '' ) * 0.01 +1 ) * vprice , REPLACE( applymarkup_c, RIGHT( applymarkup_c, 1 ) ,  '' ) + vprice), 2 ),
+markupprice_c = if(smarkupbreak_c,markup_c, if(markup_c > primary_supplier_map_c,primary_supplier_map_c, markup_c))");
+		$command->execute();
+	
+		
+		$this->redirect('admin');
+/* 	UPDATE `vims_ubs_inventory` as t1 SET t1.gmarkup_c = NULL, t1.smarkup_c = NULL, t1.smarkupbreak_c = 0 where primary_supplier_c = 40;	 */
+
+/* 	UPDATE `vims_ubs_inventory` as t1, (SELECT `from`,`to`, `markup`, `type` from  `vims_import_markup` where STATUS =1) as t2 SET t1.gmarkup_c = concat(t2.markup, if(t2.type, '%', '$')) where t1.vprice >= t2.`from` AND t1.vprice <=  t2.`to` and t1.primary_supplier_c = 40;	 */
+
+/* 	UPDATE `vims_ubs_inventory` as t1, (SELECT `from`,`to`, `markup`, `type`, `sup_id`, `break_map` from  `vims_import_sup_markup` where STATUS =1) as t2 SET t1.smarkup_c = concat(t2.markup, if(t2.type, '%', '$')), t1.smarkupbreak_c = t2.break_map where t1.vprice >= t2.`from` AND t1.vprice <=  t2.`to` and t1.`primary_supplier_c` = t2.`sup_id` and t2.sup_id = 40;	 */
+/* UPDATE `vims_ubs_inventory` SET `applymarkup_c` = CASE WHEN `smarkup_c` is not null THEN `smarkup_c` ELSE `gmarkup_c` END, `markup_c` =  ROUND(IF( RIGHT( applymarkup_c, 1 ) =  '%',  (
+REPLACE( applymarkup_c, RIGHT( applymarkup_c, 1 ) ,  '' ) * 0.01 +1 ) * vprice , REPLACE( applymarkup_c, RIGHT( applymarkup_c, 1 ) ,  '' ) + vprice), 2 ),
+markupprice_c = if(smarkupbreak_c,markup_c, if(markup_c > primary_supplier_map_c,primary_supplier_map_c, markup_c))
+
+ where primary_supplier_c = 40	 */
+
+	}
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed

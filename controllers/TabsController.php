@@ -291,6 +291,8 @@ class TabsController extends Controller
 			
 			if($oldSetupStatus == 'I' && $_POST['Supplier']['setup_status'] == 'C') {
 				$reason = "";
+
+
 				if(empty($model->supplier->user_ran_iu) || $model->supplier->user_ran_iu == '0000-00-00 00:00:00') {
 					$hasError = true;
 					$reason = "I/U must be run.";
@@ -300,6 +302,13 @@ class TabsController extends Controller
 					$reason = "Frequency must not empty.";
 				}
 				
+				if($model->importRoutine->sup_match_column <1){
+					
+					
+					$hasError = true;
+					$reason = "vSKU 1 should has integer > 0 in field1.";
+				}
+
 				if($hasError) {
 					$model->supplier->addError('setup_status', "Can't change Setup Status to complete. {$reason}");
 					$model->supplier->setup_status = 'I';

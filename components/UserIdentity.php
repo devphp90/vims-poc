@@ -5,7 +5,9 @@ class UserIdentity extends CUserIdentity
 	private $_id;
 	private $_name;
 	
-	public function authenticate() {
+	const ERROR_OTHER_LOGIN = 4;
+	
+	public function authenticate() { 
 		$username = strtolower($this->username);
 		$user = User::model()->find('LOWER(username)=?', array($username));
 		if($user === null) {
@@ -13,6 +15,8 @@ class UserIdentity extends CUserIdentity
 		}
 		else if(!$user->validatePassword($this->password)) {
 			$this->errorCode = self::ERROR_PASSWORD_INVALID;
+		} elseif (!empty($user->online_time) && (time() - strtotime($user->online_time)) < 11) {
+			$this->errorCode = self::ERROR_OTHER_LOGIN;
 		}
 		else {
 			$this->_id = $user->id;

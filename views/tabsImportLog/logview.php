@@ -66,7 +66,7 @@ $('.search-form form').submit(function(){
 
 
 
-<h1>Manage Failed Sheet Imports: <?php echo Tabs::model()->findByPk($tabs_id)->supplier->name;?></h1>
+<h1>Supplier Sheet Import Log: <?php echo Tabs::model()->findByPk($tabs_id)->supplier->name;?></h1>
 
 
 

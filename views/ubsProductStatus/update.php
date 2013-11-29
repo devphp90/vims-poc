@@ -6,9 +6,10 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'List ','url'=>array('index')),
-	array('label'=>'Create ','url'=>array('create')),
-	array('label'=>'View ','url'=>array('view','id'=>$model->id)),
+	array('label'=>'List UbsProductStatus','url'=>array('index')),
+	array('label'=>'Create UbsProductStatus','url'=>array('create')),
+	array('label'=>'View UbsProductStatus','url'=>array('view','id'=>$model->id)),
+	array('label'=>'Manage UbsProductStatus','url'=>array('admin')),
 );
 ?>
 

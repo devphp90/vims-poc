@@ -4,9 +4,15 @@
     .table th
     {
         padding: 0px 2px 2px 0px;
-
-        text-align: left;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
     }
+	
+	.matched div {
+		width: 121px;
+	}
+	
     .matched
     {
 
@@ -34,6 +40,10 @@
         top: 90px;
         right: 100px;
     }
+	
+	.modal {
+		pointer-events: none;
+	}
 </style>
 
 <script>
@@ -386,9 +396,10 @@ $columns = array(
         'header' => 'UBS Item Name',
         'type' => 'raw',
         //'value'=>'!is_null($data->ubsinventory) ? ((strlen($data->ubsinventory->sku_name)>40)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->ubsinventory->sku_name."\">".substr($data->ubsinventory->sku_name,0,40)."...</a>":$data->ubsinventory->sku_name) : ""',
-        'value' => '!is_null($data->ubsinventory) ? (strlen($data->ubsinventory->sku_name)>100 ? substr($data->ubsinventory->sku_name,0,100) . "..." : $data->ubsinventory->sku_name) : ""',
-        'headerHtmlOptions' => array(
-            'style' => 'width:1200px;',
+        //'value' => '!is_null($data->ubsinventory) ? (strlen($data->ubsinventory->sku_name)>100 ? substr($data->ubsinventory->sku_name,0,100) . "..." : $data->ubsinventory->sku_name) : ""',
+        'value' => '!is_null($data->ubsinventory) ? "<div title=\"".$data->ubsinventory->sku_name."\">".$data->ubsinventory->sku_name."</div>" : ""',
+		'headerHtmlOptions' => array(
+            'style' => 'width:380px;',
         ),
     ),
     array(
@@ -398,7 +409,7 @@ $columns = array(
         //'value'=>'(strlen($data->mfg_part_name)>10)?"<a href=\"#\" rel=\"tooltip\" title=\"".$data->mfg_part_name."\">".substr($data->mfg_part_name,0,10)."...</a>":$data->mfg_part_name',
         'value' => 'strlen($data->mfg_part_name)>40 ? substr($data->mfg_part_name,0,40)."..." : $data->mfg_part_name',
         'headerHtmlOptions' => array(
-            'style' => 'width:700px;',
+            'style' => 'width:380px;',
         ),
     ),
     array(
@@ -406,7 +417,7 @@ $columns = array(
         'name' => 'mfg_name',
         'type' => 'raw',
         'headerHtmlOptions' => array(
-            'style' => 'width:700px;',
+            'style' => 'width:300px;',
         ),
         //'value'=>'(strlen($data->mfg_name)>20)?"<a href=\"#\" title=\"".$data->mfg_name."\" rel=\"tooltip\">".substr($data->mfg_name,0,20)."...</a>":$data->mfg_name',
         'value' => 'strlen($data->mfg_name)>50 ? substr($data->mfg_name,0,50) . "..." : $data->mfg_name',
@@ -417,15 +428,16 @@ $columns = array(
         'type' => 'raw',
         //'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_title) > 16 ? "<a href=\"#\" title=\"".$data->ubsinventory->mfg_title."\" rel=\"tooltip\">".substr($data->ubsinventory->mfg_title,0,16)."...</a>" : $data->ubsinventory->mfg_title) : ""',
         'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_title) > 20 ? substr($data->ubsinventory->mfg_title,0,20)."..." : $data->ubsinventory->mfg_title) : ""',
+
         'headerHtmlOptions' => array(
-            'style' => 'width:350px;',
+            'style' => 'width:300px;',
         ),
     ),
     array(
         'header' => 'Supp<br/>MPN',
         'name' => 'mfg_sku',
 		'headerHtmlOptions' => array(
-            'style' => 'width:80px;',
+            'style' => 'width:220px;',
         ),
     ),
     array(
@@ -433,7 +445,7 @@ $columns = array(
         'name' => 'ubsinventory.mfg_name',
         'value' => '!empty($data->ubsinventory) ? (strlen($data->ubsinventory->mfg_name) > 20 ? substr($data->ubsinventory->mfg_name,0,20)."..." : $data->ubsinventory->mfg_name) : ""',
         'headerHtmlOptions' => array(
-            'style' => 'width:350px;',
+            'style' => 'width:220px;',
         ),
     ),
     array(

@@ -16,6 +16,7 @@
 class User extends CActiveRecord
 {
 	private $_salt = 'A34fgK2';
+	public $newPassword;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return User the static model class
@@ -42,7 +43,7 @@ class User extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('username, password', 'required'),
-			
+			array('newPassword', 'safe'),
 			
 			//ok
 			array('last_login,last_login_ip','unsafe'),
@@ -119,7 +120,9 @@ class User extends CActiveRecord
 	}
 
 	public function beforeSave() {
-		$this->password = $this->hashPassword($this->password, $this->_salt);
+		if($this->isNewRecord || isset($_POST['User']['password'])) {
+			$this->password = $this->hashPassword($this->password, $this->_salt);
+		}
 		return true;
 	}
 }

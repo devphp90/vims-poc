@@ -4,6 +4,7 @@
  * This is the model class for table "ubs_supplier_item_seed".
  *
  * The followings are the available columns in table 'ubs_supplier_item_seed':
+ * @property integer $id
  * @property string $SupplierName
  * @property integer $SupplierID
  * @property string $SKU
@@ -38,7 +39,7 @@ class UbsSupplierItemSeed extends CActiveRecord
 			array('upc', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('SupplierName, SupplierID, SKU, MPN, upc, SupplierSKU, ItemName', 'safe', 'on'=>'search'),
+			array('id, SupplierName, SupplierID, SKU, MPN, upc, SupplierSKU, ItemName', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -59,6 +60,7 @@ class UbsSupplierItemSeed extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
+			'id' => 'ID',
 			'SupplierName' => 'Supplier Name',
 			'SupplierID' => 'Supplier',
 			'SKU' => 'Sku',
@@ -87,6 +89,7 @@ class UbsSupplierItemSeed extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
+		//$criteria->compare('id',$this->id);
 		$criteria->compare('SupplierName',$this->SupplierName,true);
 		$criteria->compare('SupplierID',$this->SupplierID);
 		$criteria->compare('SKU',$this->SKU,true);

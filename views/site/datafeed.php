@@ -30,15 +30,28 @@
 <br/><br/>
 <strong>UBS Control</strong> <br/>
 <a href="<?php echo Yii::app()->createUrl('ubsControlTable') ?>">UBS Control</a>
+<br><br>
+<strong>UBS Sku Feed</strong> <br/>
+<a href="<?php echo Yii::app()->createUrl('ubsSkuFeed') ?>">UBS Sku Feed</a> <br><br>
 
+<strong>Product Status</strong> <br/>
+<a href="<?php echo Yii::app()->createUrl('ubsProductStatus') ?>">Product Status</a> <br><br>
 <hr/>
 <h4>VIMS-to-UBS</h4>
+
+
+<br>
+<strong>Ubs Vims Ubs Products</strong><br>
+<a href="<?php echo Yii::app()->createUrl('ubsVimsUbsProduct') ?>">Ubs Vims Ubs Products</a> <br><br>
+<a href="<?php echo Yii::app()->createUrl('/ubsVimsSupProducts/admin') ?>">Ubs Vims Sup Products</a> <br><br>
 <hr/>
+<br>
 
 <h5>DataFeeds v.4.2</h5>
 
-<strong>Product Status</strong> <br/>
-<a href="<?php echo Yii::app()->createUrl('ubsProductStatus') ?>">Product Status</a>
+
+
+
 
 <strong>UBS Items</strong>
 <br/>

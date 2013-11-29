@@ -25,6 +25,8 @@
  */
 class ImportWarnitemQty extends CActiveRecord
 {
+
+	public $supplier_name;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -55,9 +57,10 @@ class ImportWarnitemQty extends CActiveRecord
 			array('import_id, sheet_type, update_type, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6', 'numerical', 'integerOnly'=>true),
 			array('price, map', 'numerical'),
 			array('sup_vsku, mfg_sku, mfg_name, mfg_part_name, upc, sup_sku_name', 'length', 'max'=>255),
+			array('supplier_name', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, import_id, sheet_type, update_type, sup_vsku, price, map, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6, mfg_sku, mfg_name, mfg_part_name, upc, sup_sku_name', 'safe', 'on'=>'search'),
+			array('id,supplier_name, import_id, sheet_type, update_type, sup_vsku, price, map, ware_1, ware_2, ware_3, ware_4, ware_5, ware_6, mfg_sku, mfg_name, mfg_part_name, upc, sup_sku_name', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -129,12 +132,32 @@ class ImportWarnitemQty extends CActiveRecord
 		$criteria->compare('mfg_part_name',$this->mfg_part_name,true);
 		$criteria->compare('upc',$this->upc,true);
 		$criteria->compare('sup_sku_name',$this->sup_sku_name,true);
+		
+		if(isset($this->supplier_name)) {
+			$criteria->join = "JOIN {{import_routine}} ir on ir.id = t.import_id
+								JOIN {{supplier}} s on s.id = ir.sup_id
+			";
+			$criteria->compare('s.name', $this->supplier_name, true);
+		}
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
 	
+	public function getSuppItem()
+	{
+		return SupInventory::model()->findByAttributes(
+			array(
+				'sup_id' => isset($this->importRoutine->sup_id) ? $this->importRoutine->sup_id: "", 
+				'sup_vsku' => $this->sup_vsku,
+			)
+		);
+	}
+	public function getTabs() 
+	{
+		return Tabs::model()->findByAttributes(array('supplier_id' => isset($this->importRoutine->sup_id) ? $this->importRoutine->sup_id : ""));
+	}
 	public function supsearch($id)
 	{
 		// Warning: Please modify the following code to remove attributes that

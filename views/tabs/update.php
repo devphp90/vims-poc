@@ -52,6 +52,13 @@ $this->menu = array(
 
 
 <script>
+<?php if(isset(Yii::app()->session['error'])) {
+echo "alert('".Yii::app()->session['error']."');";
+unset(Yii::app()->sesson['error']);
+}
+?>
+
+
     function sendCode()
     {
         $.ajax({

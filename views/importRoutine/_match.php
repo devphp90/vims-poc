@@ -1,35 +1,35 @@
-<script>
-$(function(){
-	
-	$('input:radio[name="ImportRoutine[match_column]"]').live('change',function(){
-		$('fieldset[match=1]').hide();
-		$('#match'+$(this).val()).show();
-	});
-});
-
-</script>
-<div id="mapping" class="span10">
-
-		
-		VIMS Supplier SKU value (VSKU#) is made-up by UBS<br/>
-		VSKU is the unique indentifier for an Update Sheet row.<br/>
-		What column # in the Update Sheet makes the best VSKU?<br/>
-		VSKU lives as a field in Supplier Item table and serves as the Match value between an Update Sheet row and a Supplier Item record.<br/>
-		<br/>
-		<?php echo $form->labelEx($model,'sup_match_column',array('label'=>'VSKU = Col #','style'=>'margin-right:0px;text-align:left;min-width:100px;display:inline')); ?>
-		<?php echo $form->textField($model,'sup_match_column',array('size'=>'3','class'=>'input-mini')); ?>
-		<?php echo $form->error($model,'sup_match_column'); ?>
-
-		+
-		<?php echo $form->labelEx($model,'sup_match_column_1',array('label'=>'Col #','style'=>'margin-right:0px;text-align:left;min-width:10px;display:inline;')); ?>
-		<?php echo $form->textField($model,'sup_match_column_1',array('size'=>'3','class'=>'input-mini')); ?>
-		<?php echo $form->error($model,'sup_match_column_1'); ?>
-
-		+
-		<?php echo $form->labelEx($model,'sup_match_column_2',array('label'=>'Col #','style'=>'margin-right:0px;text-align:left;min-width:10px;display:inline;')); ?>
-		<?php echo $form->textField($model,'sup_match_column_2',array('size'=>'3','class'=>'input-mini')); ?>
-		<?php echo $form->error($model,'sup_match_column_2'); ?>
-
-
-	
+<script>
+$(function(){
+	
+	$('input:radio[name="ImportRoutine[match_column]"]').live('change',function(){
+		$('fieldset[match=1]').hide();
+		$('#match'+$(this).val()).show();
+	});
+});
+
+</script>
+<div id="mapping" class="span10">
+
+		
+		VIMS Supplier SKU value (VSKU#) is made-up by UBS<br/>
+		VSKU is the unique indentifier for an Update Sheet row.<br/>
+		What column # in the Update Sheet makes the best VSKU?<br/>
+		VSKU lives as a field in Supplier Item table and serves as the Match value between an Update Sheet row and a Supplier Item record.<br/>
+		<br/>
+		<?php echo $form->labelEx($model,'sup_match_column',array('label'=>'VSKU = Col #','style'=>'margin-right:0px;text-align:left;min-width:100px;display:inline')); ?>
+		<?php echo $form->textField($model,'sup_match_column',array('size'=>'3','class'=>'input-mini')); ?>
+		<?php echo $form->error($model,'sup_match_column'); ?>
+
+		+
+		<?php echo $form->labelEx($model,'sup_match_column_1',array('label'=>'Col #','style'=>'margin-right:0px;text-align:left;min-width:10px;display:inline;')); ?>
+		<?php echo $form->textField($model,'sup_match_column_1',array('size'=>'3','class'=>'input-mini')); ?>
+		<?php echo $form->error($model,'sup_match_column_1'); ?>
+
+		+
+		<?php echo $form->labelEx($model,'sup_match_column_2',array('label'=>'Col #','style'=>'margin-right:0px;text-align:left;min-width:10px;display:inline;')); ?>
+		<?php echo $form->textField($model,'sup_match_column_2',array('size'=>'3','class'=>'input-mini')); ?>
+		<?php echo $form->error($model,'sup_match_column_2'); ?>
+
+
+	
 	</div>

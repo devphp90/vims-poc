@@ -36,10 +36,29 @@ $('.search-form form').submit(function(){
 
 ");
 ?>
+<style>
+.grid-view .summary {
+    float: right;
+    margin-bottom: 5px;
+    position: absolute;
+    right: 62px;
+    text-align: right;
+    top: 152px;
+    width: 249px;
+}
+</style>
 
 
+<h1>vSheet: <?php echo $supName ?>
+<span style="font-weight: normal; font-size: 15px; margin-left: 20px;">UBS Supplier ID: <b>
+<?php echo $tabsModel->supplier->ubs_supplier_id ?>
+</b> &nbsp;&nbsp;VIMS Supplier ID1: <b>
+<?php echo $tabsModel->supplier_id ?></b> 
+&nbsp;&nbsp;VIMS Supplier ID2: 
+<b><?php echo $tabsModel->id ?></b>
+</span>
 
-<h1>vSheet: <?php echo $supName ?></h1>
+</h1>
 
 
 
@@ -73,11 +92,17 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
             'htmlOptions' => array('style' => 'width: 7%;'),
             'headerHtmlOptions' => array('style' => 'width: 7%'),
         ),
+		 array(
+            'name' => 'upc',
+            'htmlOptions' => array('style' => 'width: 160px;'),
+            'headerHtmlOptions' => array('style' => 'width: 160px'),
+        ),
         array(
             'name' => 'mfg_name',
             'htmlOptions' => array('style' => 'width: 7%;'),
             'headerHtmlOptions' => array('style' => 'width: 7%'),
         ),
+		
         array(
             'header' => 'Mfg<br/>Part<br/>Name',
             'name' => 'mfg_part_name',
@@ -94,9 +119,9 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
         'ware_4',
         'ware_5',
         'ware_6',
-        'upc',
+      
         'sup_sku_name',
-        array(
+      /*  array(
             'header' => 'VIMS<br/>Supp<br/>ID1',
             'type' => 'raw',
             'name' => 'sup_id',
@@ -111,6 +136,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
             'header' => 'UBS<br/>Supp<br/>ID',
             'value' => '$data->supplier->ubs_supplier_id',
         ),
+		*/
         array(
             'header' => 'Import<br/>ID',
             'name' => 'import_id',

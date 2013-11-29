@@ -50,8 +50,12 @@ class LoginForm extends CFormModel
 		if(!$this->hasErrors())
 		{
 			$this->_identity=new UserIdentity($this->username,$this->pwd);
-			if(!$this->_identity->authenticate())
-				$this->addError('pwd','Incorrect user or pwd.');
+			if(!$this->_identity->authenticate()) {
+				if($this->_identity->errorCode == UserIdentity::ERROR_OTHER_LOGIN) {
+					$this->addError('pwd', "This account is being logged in");
+				} else 
+					$this->addError('pwd','Incorrect user or pwd.');
+			}
 		}
 	}
 

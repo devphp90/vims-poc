@@ -70,12 +70,14 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
 		 array(
             'header'=>'Action',
             'type' => 'raw',
-            'value'=> '$data["tabs_import_log_id"] ? CHtml::link("Action", "#", array("data-toggle" => "modal","data-target"=>"#myModal", "tabs_id" => $data["tabs_id"], "tabs_import_log_id" => $data["tabs_import_log_id"], "class" => "user-action")) : ""'
+           // 'value'=> '$data["tabs_import_log_id"] ? CHtml::link("Action", "#", array("data-toggle" => "modal","data-target"=>"#myModal", "tabs_id" => $data["tabs_id"], "tabs_import_log_id" => $data["tabs_import_log_id"], "class" => "user-action")) : ""'
+           'value'=> 'CHtml::link("Action", "#", array("data-toggle" => "modal","data-target"=>"#myModal", "tabs_id" => $data["tabs_id"], "tabs_import_log_id" => $data["tabs_import_log_id"], "class" => "user-action"))'
         ),
 		
         array(
             'header' => 'Reset Log',
-            'value' => '$data["tabs_import_log_id"] ? CHtml::link("Reset", array("supreset", "id"=>$data["tabs_id"])) : ""',
+//            'value' => '$data["tabs_import_log_id"] ? CHtml::link("Reset", array("supreset", "id"=>$data["tabs_id"])) : ""',
+			 'value' => 'CHtml::link("Reset", array("supreset", "id"=>$data["tabs_id"]))',
             'htmlOptions' => array('style' => 'width: 7%;'),
             'headerHtmlOptions' => array('style' => 'width: 7%'),
             'type' => 'raw',
@@ -83,8 +85,12 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
         array(
             'header' => 'Active<br/>Inactive<br/>Status',
             'type' => 'raw',
+/*
             'value' => '$data["tabs_import_log_id"] ? CHtml::link(Yii::app()->controller->getTabs($data["tabs_id"])->supplier->active?"Active":"Inactive", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id)), array("id" => "link-status-".Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id, "class" => "status-toggle"))
         . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle")) : ""',
+*/
+			'value' => 'CHtml::link(Yii::app()->controller->getTabs($data["tabs_id"])->supplier->active?"Active":"Inactive", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id)), array("id" => "link-status-".Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id, "class" => "status-toggle"))
+        . CHtml::link("<i class=\"icon-pencil\"></i>", Yii::app()->createUrl("/supplier/statusChangeInfo", array("id"=>Yii::app()->controller->getTabs($data["tabs_id"])->supplier->id, "edit-only" => 1)), array("class"=> "status-toggle"))',
             'htmlOptions' => array('style' => 'width: 70px'),
             'headerHtmlOptions' => array('style' => 'width: 70px'),
         ),

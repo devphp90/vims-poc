@@ -36,14 +36,16 @@ $('.search-form form').submit(function(){
 )); ?>
 </div><!-- search-form -->
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php 
+
+$this->widget('bootstrap.widgets.TbGridView', array(
 	'id'=>'supplier-grid',
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
 		'id',
 		'name',
-
+		array('name' => 'setup_status', 'value' => '$data->setupStatusValues[$data->setup_status]'),
 		array(
 			'header'=>'Active/InActive',
 			'type'=>'raw',

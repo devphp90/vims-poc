@@ -50,6 +50,7 @@ class UbsSupplier extends CActiveRecord {
             array('SupplierName', 'length', 'max' => 200),
             array('Address1, Address2, City, State, Zip, Country, Email, Fax, Phone, TollFreePhone, MainContact, MainContactPhone, Phone_2, Phone2', 'length', 'max' => 50),
             //array('TimeStamp', 'safe'),
+            array('SupplierID', 'numerical', 'integerOnly'=>true),
             array('Email', 'email'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
@@ -72,7 +73,7 @@ class UbsSupplier extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'SupplierID' => 'ID',
+            'SupplierID' => 'UBS Supplier ID',
             'SupplierName' => 'Supplier Name',
             'Address1' => 'Address1',
             'Address2' => 'Address2',

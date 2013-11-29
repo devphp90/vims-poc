@@ -241,7 +241,9 @@
 
 						'label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
 
+
 	                array('label'=>Yii::t('app','Logout ('.Yii::app()->user->name.')'), 'url'=>array('/site/logout'),'visible'=>!Yii::app()->user->isGuest),
+
 
 	                array('label'=>Yii::t('app','Login'), 'url'=>array('/site/login'),'visible'=>Yii::app()->user->isGuest),
 
@@ -328,11 +330,28 @@ if(isset($this->breadcrumbs)):?>
 		Runtime:<?php echo Yii::getLogger()->getExecutionTime()?>
 
 	</div><!-- footer -->
+	
 
 
 
 </div><!-- page -->
 
+<?php if(!Yii::app()->user->isGuest) {?>
+<script>
+	
+	function sendOnlineTime() {
+		$.ajax({
+			url: '<?php echo Yii::app()->createUrl('site/updateOnlineTime') ?>',
+			type: 'POST',
+			success: function (response) {},
+		});
+	}
+	sendOnlineTime();
+	var interval = setInterval(sendOnlineTime, 11000);
+
+</script>
+
+<?php }?>
 </body>
 
 </html>

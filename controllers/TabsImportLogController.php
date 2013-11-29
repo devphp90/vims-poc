@@ -40,7 +40,7 @@ class TabsImportLogController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('test','failImportAndUpdate', 'create', 'update', 'admin', 'delete', 'logview', 'supdelall', 'supreset', 'failRoutine', 'index', 'view'),
+                'actions' => array('test','getLastReason','failImportAndUpdate', 'create', 'update', 'admin', 'delete', 'logview', 'supdelall', 'supreset', 'failRoutine', 'index', 'view'),
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -52,6 +52,11 @@ class TabsImportLogController extends Controller
     public function actionFailImportAndUpdate()
     {
         $sql = TabsImportLog::getFailImportUpdateSql();
+		$filter = new SupplierFilterForm();
+		if(isset($_REQUEST['SupplierFilterForm'])) {
+			$filter->attributes = $_REQUEST['SupplierFilterForm'];
+		}
+		$this->doUserActions();
         $count = Yii::app()->db->createCommand("select count(a.tabs_id) count from ($sql) a")->queryScalar();
         $provider = new CSqlDataProvider($sql, array(
             'totalItemCount' => $count,
@@ -60,9 +65,70 @@ class TabsImportLogController extends Controller
                 'pageSize' => 20,
             ),
         ));
-        $this->render('fail_import_update', array('dataProvider' => $provider));
+		
+		
+		
+        $this->render('//dashboard/fail_import_update', array('dataProvider' => $provider, 'filter' => $filter));
 
     }
+	
+	public function actionGetLastReason()
+	{
+		if(Yii::app()->request->isAjaxRequest) {
+		
+			$tabs_import_log_id = $_POST['tabs_import_log_id'];
+			$criteria = new CDbCriteria();
+			$criteria->compare('tabs_import_log_id', $tabs_import_log_id);
+			$criteria->order = "created_time desc";
+			
+			$log = ImportLogFailAction::model()->find($criteria);
+			if($log == null) 
+			{ echo "null";} 
+			else { 
+				$log->created_time = date('Y-m-d H:i:s', $log->created_time); 
+				echo CJSON::encode(array('created_time' => $log->created_time,
+					'reason' => $log->reason, 'action'=>$log->action, 'user' => $log->user->username,'notes' => $log->notes
+				));
+			}
+		}
+	}
+	
+	protected function doUserActions()
+	{
+		if (isset($_POST['action']) && isset($_POST['tabs_id']) && isset($_POST['reason'])) {
+            $action = $_POST['action'];
+            $reason = $_POST['reason'];
+            $tabs_id = $_POST['tabs_id'];
+            $actions = $this->getUserActions();
+            $reasons = $this->getUserReasons();
+            $log = new ImportLogFailAction();
+            $log->action = $actions[$action];
+            $log->reason = $reasons[$reason];
+            $log->created_time = time();
+            $log->user_id = Yii::app()->user->id;
+            $log->tabs_import_log_id = $_POST['tabs_import_log_id'];
+            $log->notes = $_POST['notes'];
+            $log->save(false);
+
+            if ($action == '0' ||$action == '1' ||$action == '2' ||$action == '4') {
+                $this->doResetLog($tabs_id);
+                $this->doChangeStatus($tabs_id);
+                $this->runIU($tabs_id);
+            } elseif ($action == '3'){
+
+	            $this->doResetLog($tabs_id);
+                $this->doChangeStatus($tabs_id);
+                $this->runIU($tabs_id, true, 1);
+            }
+			//elseif ($action == '1') {
+            //    $this->doResetLog($tabs_id);
+            //    $this->doChangeStatus($tabs_id);
+            //    $this->runIU($tabs_id, true);
+            //}
+
+        }
+	}
+	
     public function actionTest()
     {
         $sql = TabsImportLog::getFailImportUpdateSql();
@@ -76,34 +142,9 @@ class TabsImportLogController extends Controller
         $model->unsetAttributes(); // clear any default values
         if (isset($_GET['TabsImportLog']))
             $model->attributes = $_GET['TabsImportLog'];
-
-        if (isset($_POST['action']) && isset($_POST['tabs_id']) && isset($_POST['reason'])) {
-            $action = $_POST['action'];
-            $reason = $_POST['reason'];
-            $tabs_id = $_POST['tabs_id'];
-
-            $actions = $this->getUserActions();
-            $reasons = $this->getUserReasons();
-            $log = new ImportLogFailAction();
-            $log->action = $actions[$action];
-            $log->reason = $reasons[$reason];
-            $log->created_time = time();
-            $log->user_id = Yii::app()->user->id;
-            $log->tabs_import_log_id = $_POST['tabs_import_log_id'];
-            $log->notes = $_POST['notes'];
-            $log->save(false);
-
-            if ($action == '0') {
-                $this->doResetLog($tabs_id);
-                $this->doChangeStatus($tabs_id);
-                $this->runIU($tabs_id);
-            } elseif ($action == '1') {
-                $this->doResetLog($tabs_id);
-                $this->doChangeStatus($tabs_id);
-                $this->runIU($tabs_id, true);
-            }
-
-        }
+		
+		$this->doUserActions();
+        
 
         $this->render('failroutine', array(
             'model' => $model,
@@ -292,8 +333,35 @@ class TabsImportLogController extends Controller
 
     public function getUserActions()
     {
-        return array("Try Again", "Accept the failed import sheet1", "Accept the failed import sheet2 and reactivate", "Accept failed importsheet BOTH and reactivate", "REJECT and Reset/requeu to the previous GOOD inventory sheet and reactivate", "REJECT and keep on Inactive");
+		return array(
+		"Try Again: Reactivate and Reset log and try to reimport",
+		"Accept the failed1: Reactivate the supplier and use the failed sheet unless other rules apply",
+		"Accept the failed2: Reactivate the supplier and use the failed sheet unless other rules apply",
+		"Accept the failedBoth: Reactivate the supplier and use the failed sheet unless other rules apply",
+		"Reject and Reset to PREVIOUS good sheet: Reactivate and disregard todays sheet (clear it)",
+		"REJECT and keep on Inactive",
+		);
+	
+       /* return array(
+		"Try Again", 
+		"Accept the failed import sheet1", 
+		"Accept the failed import sheet2 and reactivate", 
+		"Accept failed importsheet BOTH and reactivate", 
+		"REJECT and Reset/requeu to the previous GOOD inventory sheet and reactivate", 
+		"REJECT and keep on Inactive");*/
     }
+	
+	public function getUserActionTooltips() 
+	{
+		return array(
+		"I am not sure why FAIL, but try again.", 
+		"I researched the problem, so try again.",
+		"I researched the problem, so try again.",
+		"I researched the problem, so try again.",
+		"",
+		"",
+		);
+	}
 
     public function getUserReasons()
     {
@@ -309,7 +377,7 @@ class TabsImportLogController extends Controller
     /**
      * @param $id tabs_id
      */
-    public function runIU($id, $updateOnly = false)
+    public function runIU($id, $updateOnly = true, $bypass = 0)
     {
 
         session_write_close();
@@ -326,11 +394,13 @@ class TabsImportLogController extends Controller
 
         // echo '<a href="'.$importUrl.'">Import Link(debug only)</a>';
         // echo '<br/>';
-        $updateUrl = $this->createAbsoluteUrl("/importRoutine/updateFile", array(
-            'id' => $tabsModel->import_routine_id,
-        ));
+        $url = parse_url($tabsModel->importRoutine->import_server->update_url);
+		$updateUrl = $url['scheme'].'://'.$url['host'].$this->createUrl("/importRoutine/updateFile",array(
+			'id'=>$tabsModel->import_routine_id,
+			'bypass'=> $bypass
+		));
 
-        // echo '<a href="'.$updateUrl.'">Update Link(debug only)</a>';
+//         echo '<a href="'.$updateUrl.'">Update Link(debug only)</a>';
         if ($updateOnly) {
             exec('wget --delete-after -q ' . $updateUrl . ' > /dev/null &');
         } else {

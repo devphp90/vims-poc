@@ -23,7 +23,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
     ),
 
     array(
-      'header'=>'Import Start<br/>Date/Time',
+      'header'=>'Download Start<br/>Date/Time',
       'name'=>'create_time',
       'htmlOptions' => array('style' => 'width: 7%;'),
       'headerHtmlOptions' => array('style' => 'width: 7%'),
@@ -109,7 +109,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView',array(
       'headerHtmlOptions' => array('style' => 'width: 7%'),
     ),
     array(
-      'header'=>'Import Finish<br/>vSheet Start',
+      'header'=>'Download Finish<br/>vSheet Start',
       'name'=>'download_finish_time',
       'type'=>'raw',
       'value'=>'$data->download_finish_time."<br/>".(strtotime($data->download_finish_time)-strtotime($data->create_time)>0?strtotime($data->download_finish_time)-strtotime($data->create_time):"0")." Secs"',

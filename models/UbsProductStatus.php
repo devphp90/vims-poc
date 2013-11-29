@@ -5,21 +5,14 @@
  *
  * The followings are the available columns in table 'ubs_product_status':
  * @property integer $id
+ * @property string $dtCreated
+ * @property string $Action
+ * @property string $Completed
  * @property string $SKU
  * @property integer $StockStatusID
  */
 class UbsProductStatus extends CActiveRecord
 {
-	/**
-	 * Returns the static model of the specified AR class.
-	 * @param string $className active record class name.
-	 * @return UbsProductStatus the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
-
 	/**
 	 * @return string the associated database table name
 	 */
@@ -36,12 +29,13 @@ class UbsProductStatus extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('SKU, StockStatusID', 'required'),
+			array('dtCreated, Action, SKU, StockStatusID', 'required'),
 			array('StockStatusID', 'numerical', 'integerOnly'=>true),
+			array('Action, Completed', 'length', 'max'=>1),
 			array('SKU', 'length', 'max'=>250),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, SKU, StockStatusID', 'safe', 'on'=>'search'),
+			// @todo Please remove those attributes that should not be searched.
+			array('id, dtCreated, Action, Completed, SKU, StockStatusID', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -63,6 +57,9 @@ class UbsProductStatus extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
+			'dtCreated' => 'Dt Created',
+			'Action' => 'Action',
+			'Completed' => 'Completed',
 			'SKU' => 'Sku',
 			'StockStatusID' => 'Stock Status',
 		);
@@ -70,21 +67,42 @@ class UbsProductStatus extends CActiveRecord
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 *
+	 * Typical usecase:
+	 * - Initialize the model fields with values from filter form.
+	 * - Execute this method to get CActiveDataProvider instance which will filter
+	 * models according to data in model fields.
+	 * - Pass data provider to CGridView, CListView or any similar widget.
+	 *
+	 * @return CActiveDataProvider the data provider that can return the models
+	 * based on the search/filter conditions.
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
+		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
+		$criteria->compare('dtCreated',$this->dtCreated,true);
+		$criteria->compare('Action',$this->Action,true);
+		$criteria->compare('Completed',$this->Completed,true);
 		$criteria->compare('SKU',$this->SKU,true);
 		$criteria->compare('StockStatusID',$this->StockStatusID);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}
+
+	/**
+	 * Returns the static model of the specified AR class.
+	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * @param string $className active record class name.
+	 * @return UbsProductStatus the static model class
+	 */
+	public static function model($className=__CLASS__)
+	{
+		return parent::model($className);
 	}
 }

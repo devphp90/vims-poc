@@ -166,6 +166,7 @@
 
     ),
 
+/*
     array(
 
       'id'=>'tabs_7',
@@ -175,6 +176,7 @@
       'content'=>$this->renderPartial('tabs/_runiu',compact('model'),1),
 
     ),
+*/
 
 
 
